@@ -17,6 +17,9 @@ import org.poo.commands.print.PrintTransactions;
 import org.poo.commands.print.PrintUsers;
 import org.poo.commands.reports.Report;
 import org.poo.commands.reports.SpendingsReport;
+import org.poo.commands.withdrawal.CashWithdrawal;
+import org.poo.commands.withdrawal.WithdrawSavings;
+import org.poo.commerciant.Commerciant;
 import org.poo.exchange.Exchange;
 import org.poo.fileio.CommandInput;
 import org.poo.graph.ExchangeGraph;
@@ -32,13 +35,15 @@ public final class Execute {
     private final User[] users;
     private final Exchange[] exchanges;
     private final CommandInput[] commands;
+    private final Commerciant[] commerciants;
 
-    public Execute(final ArrayNode output, final User[] users,
+    public Execute(final ArrayNode output, final User[] users, final Commerciant[] commerciants,
                    final Exchange[] exchanges, final CommandInput[] commands) {
         this.output = output;
         this.users = users;
         this.exchanges = exchanges;
         this.commands = commands;
+        this.commerciants = commerciants;
     }
 
     /**
@@ -49,6 +54,11 @@ public final class Execute {
         Mappers mappers = new Mappers();
         for (User user : users) {
             mappers.addEmailToUser(user.getEmail(), user);
+        }
+        for (Commerciant commerciant : commerciants) {
+            mappers.addAccountToCommerciant(commerciant.getAccount(), commerciant);
+            mappers.addIbanToAccount(commerciant.getIban(), commerciant.getAccount());
+            mappers.addNameToCommerciant(commerciant.getCommerciant(), commerciant);
         }
         for (CommandInput command : commands) {
             switch (command.getCommand()) {
@@ -80,7 +90,7 @@ public final class Execute {
                     new PayOnline(command, exchangeGraph, output, mappers).execute();
                     break;
                 case "sendMoney":
-                    new SendMoney(command, users, exchangeGraph).execute();
+                    new SendMoney(command, users, exchangeGraph, mappers).execute();
                     break;
                 case "setAlias":
                     new SetAlias(command, mappers).execute();
@@ -106,8 +116,17 @@ public final class Execute {
                 case "spendingsReport":
                     new SpendingsReport(command, output, mappers).execute();
                     break;
+                case "withdrawSavings":
+                    new WithdrawSavings(command, output, mappers, exchangeGraph).execute();
+                    break;
+                case "upgradePlan":
+                    new UpgradePlan(command, output, mappers, exchangeGraph).execute();
+                    break;
+                case "cashWithdrawal":
+                    new CashWithdrawal(command, output, mappers, exchangeGraph).execute();
+                    break;
                 default:
-                    throw new IllegalArgumentException("Command doesn't exist.");
+                    throw new IllegalArgumentException("Command " + command.getCommand() + " doesn't exist.");
             }
         }
     }

@@ -42,6 +42,9 @@ public final class ExchangeGraph {
      */
     public double convertCurrency(final String fromCurrency, final String toCurrency,
                                   final double amount) {
+        if (fromCurrency.equals(toCurrency)) {
+            return amount;
+        }
         DijkstraShortestPath<String, DefaultWeightedEdge> dijkstra
                 = new DijkstraShortestPath<>(exchangeGraph);
         GraphPath<String, DefaultWeightedEdge> path = dijkstra.getPath(fromCurrency, toCurrency);
@@ -57,5 +60,8 @@ public final class ExchangeGraph {
             totalRate *= weight;
         }
         return amount * totalRate;
+    }
+    public double convertToRon(final String fromCurrency, final double amount) {
+        return convertCurrency(fromCurrency, "RON", amount);
     }
 }

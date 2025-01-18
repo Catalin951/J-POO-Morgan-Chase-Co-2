@@ -23,8 +23,9 @@ public final class AddAccount implements Command {
         if (requestedUser == null) {
             throw new IllegalArgumentException("User not found");
         }
-        Account newAccount = AccountFactory.createAccount(input);
+        System.out.println(requestedUser.getAge() );
 
+        Account newAccount = AccountFactory.createAccount(input);
         mappers.addAccountToUser(newAccount, requestedUser);
         mappers.addIbanToAccount(newAccount.getIban(), newAccount);
         ObjectNode objectNode = new ObjectMapper().createObjectNode();

@@ -1,5 +1,6 @@
 package org.poo.mapper;
 
+import org.poo.commerciant.Commerciant;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 
@@ -9,11 +10,15 @@ import java.util.HashMap;
  * Mappers uses 3 HashMaps to store information so it can be accessed
  * Its utility stems from the different Maps that are all in one object:
  * account -> user
+ * account -> commerciant
+ * name -> commerciant
  * email -> user
  * iban -> account
  */
 public final class Mappers {
     private final HashMap<Account, User> accountToUserMap;
+    private final HashMap<Account, Commerciant> accountToCommerciantMap;
+    private final HashMap<String, Commerciant> nameToCommerciantMap;
     private final HashMap<String, User> emailToUserMap;
     private final HashMap<String, Account> ibanToAccountMap;
 
@@ -21,6 +26,65 @@ public final class Mappers {
         this.accountToUserMap = new HashMap<>();
         this.emailToUserMap = new HashMap<>();
         this.ibanToAccountMap = new HashMap<>();
+        this.accountToCommerciantMap = new HashMap<>();
+        this.nameToCommerciantMap = new HashMap<>();
+    }
+    /**
+     * Maps the given name to a commerciant
+     * @param name Key
+     * @param commerciant Value
+     */
+    public void addNameToCommerciant(final String name, final Commerciant commerciant) {
+        if (name != null && commerciant != null) {
+            nameToCommerciantMap.put(name, commerciant);
+        }
+        else {
+            throw new IllegalArgumentException("Commerciant or account is null");
+        }
+    }
+    /**
+     * Returns the Commerciant that the name is mapped to
+     * @param name Key
+     * @return The value which is the corresponding Commerciant
+     */
+    public Commerciant getCommerciantForName(final String name) {
+        return nameToCommerciantMap.get(name);
+    }
+
+    /**
+     * Returns true if the account has been mapped to a commerciant or false otherwise
+     * @param name the mapped key
+     * @return true or false depending on whether the key was mapped or not
+     */
+    public boolean hasNameToCommerciant(final String name) {
+        return nameToCommerciantMap.containsKey(name);
+    }
+    /**
+     * Maps the given account to a commerciant
+     * @param account Key
+     * @param commerciant Value
+     */
+    public void addAccountToCommerciant(final Account account, final Commerciant commerciant) {
+        if (account != null && commerciant != null) {
+            accountToCommerciantMap.put(account, commerciant);
+        }
+    }
+    /**
+     * Returns the Commerciant that the account is mapped to
+     * @param account Key
+     * @return The value which is the corresponding Commerciant
+     */
+    public Commerciant getCommerciantForAccount(final Account account) {
+        return accountToCommerciantMap.get(account);
+    }
+
+    /**
+     * Returns true if the account has been mapped to a commerciant or false otherwise
+     * @param account the mapped key
+     * @return true or false depending on whether the key was mapped or not
+     */
+    public boolean hasAccountToCommerciant(final Account account) {
+        return accountToCommerciantMap.containsKey(account);
     }
     /**
      * Maps the given account to an user

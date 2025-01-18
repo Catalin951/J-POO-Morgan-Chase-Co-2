@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
+import org.poo.commerciant.Commerciant;
 import org.poo.fileio.CommandInput;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
@@ -69,7 +70,9 @@ public final class PayOnline implements Command {
         String from = input.getCurrency();
         String to = requestedAccount.getCurrency();
         double convertedAmount = exchangeGraph.convertCurrency(from, to, input.getAmount());
-        if (requestedAccount.getBalance() - convertedAmount < 0) {
+        double commission = requestedUser.getCommissionForTransaction(input.getAmount(), from, exchangeGraph);
+        System.out.println("Commission in payonline: " + commission);
+        if (requestedAccount.getBalance() - convertedAmount * (1 + commission) < 0) {
             objectNode.put("timestamp", input.getTimestamp());
             objectNode.put("description", "Insufficient funds");
             requestedUser.getTransactions().add(objectNode);
@@ -80,8 +83,16 @@ public final class PayOnline implements Command {
             objectNode.put("commerciant", input.getCommerciant());
             requestedUser.getTransactions().add(objectNode);
             requestedAccount.getTransactions().add(objectNode);
-            requestedCard.subtractFromBalance(convertedAmount, requestedAccount,
+            requestedCard.subtractFromBalance(convertedAmount * (1 + commission), requestedAccount,
                                               mappers, input.getTimestamp());
+            Commerciant commerciant = mappers.getCommerciantForName(input.getCommerciant());
+            // Give cashback
+            commerciant.giveCashback(requestedAccount.getCurrency(), convertedAmount,
+                                     requestedUser, requestedAccount, exchangeGraph);
+//            double ronAmount = exchangeGraph.convertToRon(requestedAccount.getCurrency(), convertedAmount);
+//            double thresholdCashback = requestedAccount.getThresholdCashback(requestedUser, ronAmount);
+//            requestedAccount.setBalance(requestedAccount.getBalance() + convertedAmount * thresholdCashback);
+            System.out.println("Cashback given in payonline");
         }
     }
 }
