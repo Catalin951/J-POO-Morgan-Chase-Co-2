@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
 import org.poo.commerciant.Commerciant;
+import org.poo.execution.Execute;
 import org.poo.fileio.CommandInput;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
@@ -33,6 +34,9 @@ public final class PayOnline implements Command {
      * The transactions are placed in the account and in the user
      */
     public void execute() {
+        if (input.getAmount() == 0) {
+            return;
+        }
         User requestedUser = mappers.getUserForEmail(input.getEmail());
         if (requestedUser == null) {
             throw new IllegalArgumentException("User " + input.getEmail() + " not found");
@@ -61,10 +65,8 @@ public final class PayOnline implements Command {
             return;
         }
         if (requestedCard.isFrozen()) {
-            ObjectNode errorNode = new ObjectMapper().createObjectNode();
-            errorNode.put("description", "The card is frozen");
-            errorNode.put("timestamp", input.getTimestamp());
-            requestedUser.getTransactions().add(errorNode);
+            Execute.addTransactionError("The card is frozen",
+                    input.getTimestamp(), requestedUser);
             return;
         }
         String from = input.getCurrency();
@@ -73,9 +75,8 @@ public final class PayOnline implements Command {
         double commission = requestedUser.getCommissionForTransaction(input.getAmount(), from, exchangeGraph);
         System.out.println("Commission in payonline: " + commission);
         if (requestedAccount.getBalance() - convertedAmount * (1 + commission) < 0) {
-            objectNode.put("timestamp", input.getTimestamp());
-            objectNode.put("description", "Insufficient funds");
-            requestedUser.getTransactions().add(objectNode);
+            Execute.addTransactionError("Insufficient funds",
+                    input.getTimestamp(), requestedUser);
         } else {
             objectNode.put("timestamp", input.getTimestamp());
             objectNode.put("description", "Card payment");
@@ -89,6 +90,9 @@ public final class PayOnline implements Command {
             // Give cashback
             commerciant.giveCashback(requestedAccount.getCurrency(), convertedAmount,
                                      requestedUser, requestedAccount, exchangeGraph);
+            if (exchangeGraph.convertToRon(input.getCurrency(), input.getAmount()) >= 300) {
+                requestedUser.setNrOf300RonPayments(requestedUser.getNrOf300RonPayments() + 1);
+            }
 //            double ronAmount = exchangeGraph.convertToRon(requestedAccount.getCurrency(), convertedAmount);
 //            double thresholdCashback = requestedAccount.getThresholdCashback(requestedUser, ronAmount);
 //            requestedAccount.setBalance(requestedAccount.getBalance() + convertedAmount * thresholdCashback);

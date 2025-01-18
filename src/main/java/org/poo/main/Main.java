@@ -85,10 +85,14 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
         if (
-                filePath1.equals("test01_user_updates.json") ||
-                filePath1.equals("test02_upgrade_plan.json") ||
-                filePath1.equals("test03_commisions.json") ||
-                filePath1.equals("test04_commisions_advanced.json")) {
+//                filePath1.equals("test01_user_updates.json") ||
+//                filePath1.equals("test02_upgrade_plan.json") ||
+//                filePath1.equals("test03_commisions.json") ||
+//                filePath1.equals("test04_commisions_advanced.json") ||
+//                filePath1.equals("test05_savings_update.json") ||
+//                filePath1.equals("test06_cashback.json") ||
+                filePath1.equals("test07_simple_split_payment.json")
+        ) {
         System.out.println(filePath1);
 
         String currentDate = LocalDate.now().toString();

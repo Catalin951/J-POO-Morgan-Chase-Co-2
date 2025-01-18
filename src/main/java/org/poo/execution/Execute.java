@@ -90,7 +90,7 @@ public final class Execute {
                     new PayOnline(command, exchangeGraph, output, mappers).execute();
                     break;
                 case "sendMoney":
-                    new SendMoney(command, users, exchangeGraph, mappers).execute();
+                    new SendMoney(command, output, users, exchangeGraph, mappers).execute();
                     break;
                 case "setAlias":
                     new SetAlias(command, mappers).execute();
@@ -151,6 +151,19 @@ public final class Execute {
         errorNode.set("output", outputNode);
         errorNode.put("timestamp", timestamp);
         return errorNode;
+    }
+
+    /**
+     * Transaction error that is usually seen by using printTransactions on a user
+     * @param description the error description
+     * @param timestamp the timestamp of the command
+     * @param user in this object's transactions list will the objectNode be placed
+     */
+    public static void addTransactionError(final String description, final int timestamp, User user) {
+        ObjectNode objectNode = new ObjectMapper().createObjectNode();
+        objectNode.put("timestamp", timestamp);
+        objectNode.put("description", description);
+        user.getTransactions().add(objectNode);
     }
 }
 

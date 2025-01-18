@@ -1,9 +1,12 @@
 package org.poo.commands.interest;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.execution.Execute;
 import org.poo.fileio.CommandInput;
 import org.poo.mapper.Mappers;
+import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 
 public final class AddInterest {
@@ -23,13 +26,20 @@ public final class AddInterest {
                     input.getTimestamp()));
             return;
         }
-        if (!account.getAccountType().equals("Savings")) {
+        if (!account.getAccountType().equals("savings")) {
             output.add(Execute.makeGeneralError("addInterest",
                     "This is not a savings account",
                     input.getTimestamp()));
             return;
         }
         double newBalance = account.getBalance() + account.getInterest() * account.getBalance();
+        User user = mappers.getUserForAccount(account);
+        ObjectNode objectNode = new ObjectMapper().createObjectNode();
+        objectNode.put("amount", account.getInterest() * account.getBalance());
+        objectNode.put("currency", account.getCurrency());
+        objectNode.put("description", "Interest rate income");
+        objectNode.put("timestamp", input.getTimestamp());
+        user.getTransactions().add(objectNode);
         account.setBalance(newBalance);
     }
 }

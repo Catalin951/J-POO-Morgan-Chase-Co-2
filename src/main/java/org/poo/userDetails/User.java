@@ -24,6 +24,7 @@ public final class User {
     private final String birthDate;
     private final int age;
     private String servicePlan;
+    private int nrOf300RonPayments = 0;
     private final String occupation;
     private final ArrayList<Account> accounts;
     private final ArrayNode transactions;

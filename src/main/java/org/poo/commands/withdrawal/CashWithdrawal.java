@@ -45,17 +45,19 @@ public class CashWithdrawal implements Command {
                                       "Card not found", input.getTimestamp()));
             return;
         }
+        double convertedAmount = exchangeGraph.convertCurrency("RON", account.getCurrency(), input.getAmount());
         double commission = user.getCommissionForTransaction(input.getAmount(), account.getCurrency(), exchangeGraph);
-        if (account.getBalance() < input.getAmount() * (1 + commission)) {
+        if (account.getBalance() < convertedAmount * (1 + commission)) {
             ObjectNode objectNode = new ObjectMapper().createObjectNode();
             objectNode.put("timestamp", input.getTimestamp());
             objectNode.put("description", "Insufficient funds");
             user.getTransactions().add(objectNode);
         } else {
-            account.setBalance(account.getBalance() - input.getAmount() * (1 + commission));
+            account.setBalance(account.getBalance() - convertedAmount * (1 + commission));
             ObjectNode objectNode = new ObjectMapper().createObjectNode();
             objectNode.put("timestamp", input.getTimestamp());
-            objectNode.put("description", "Cash withdrawal of " + input.getCommand());
+            objectNode.put("amount", input.getAmount());
+            objectNode.put("description", "Cash withdrawal of " + input.getAmount());
             user.getTransactions().add(objectNode);
         }
     }

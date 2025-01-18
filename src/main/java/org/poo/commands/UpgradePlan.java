@@ -47,7 +47,7 @@ public final class UpgradePlan {
             user.getTransactions().add(objectNode);
             return;
         }
-        double fee = 0;
+        double fee = -1;
         if (newPlan.equals("silver")) {
             fee = 100;
         }
@@ -55,10 +55,14 @@ public final class UpgradePlan {
             if (currentPlan.equals("standard") || currentPlan.equals("student")) {
                 fee = 350;
             } else if (currentPlan.equals("silver")) {
-                fee = 250;
+                if (user.getNrOf300RonPayments() >= 5) {
+                    fee = 0;
+                } else {
+                    fee = 250;
+                }
             }
         }
-        if (fee == 0) {
+        if (fee == -1) {
             throw new IllegalArgumentException("Plan not supported");
         }
         double convertedFee = exchangeGraph.convertCurrency("RON", account.getCurrency(), fee);

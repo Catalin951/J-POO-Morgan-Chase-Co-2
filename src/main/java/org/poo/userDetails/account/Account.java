@@ -54,7 +54,7 @@ public abstract class Account {
                 case "gold" -> cashback = 0.55;
             }
         }
-        else {
+        else if (totalSpendingThreshold >= 500) {
             switch (user.getServicePlan()) {
                 case "standard", "student" -> cashback = 0.25;
                 case "silver" -> cashback = 0.5;
