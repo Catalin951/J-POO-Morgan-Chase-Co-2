@@ -1,13 +1,13 @@
 package org.poo.commands;
 
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.account.Account;
 
 public final class AddFunds {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final Mappers mappers;
-    public AddFunds(final CommandInput input, final Mappers mappers) {
+    public AddFunds(final ExecutionCommand input, final Mappers mappers) {
         this.input = input;
         this.mappers = mappers;
     }

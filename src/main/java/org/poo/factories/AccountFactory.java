@@ -1,5 +1,6 @@
 package org.poo.factories;
 
+import org.poo.execution.ExecutionCommand;
 import org.poo.fileio.CommandInput;
 import org.poo.userDetails.account.Account;
 import org.poo.userDetails.account.ClassicAccount;
@@ -13,7 +14,7 @@ public class AccountFactory {
      * @param command The inputted command
      * @return Reference to either savings account or classic account
      */
-    public static Account createAccount(final CommandInput command) {
+    public static Account createAccount(final ExecutionCommand command) {
         String accountType = command.getAccountType();
         String iban = Utils.generateIBAN();
         String currency = command.getCurrency();

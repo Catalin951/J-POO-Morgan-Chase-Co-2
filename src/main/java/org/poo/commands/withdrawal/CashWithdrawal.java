@@ -3,10 +3,10 @@ package org.poo.commands.withdrawal;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.commands.AddAccount;
+import org.poo.builder.ObjectNodeBuilder;
 import org.poo.commands.Command;
 import org.poo.execution.Execute;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
@@ -14,11 +14,11 @@ import org.poo.userDetails.account.Account;
 import org.poo.userDetails.card.Card;
 
 public class CashWithdrawal implements Command {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final ArrayNode output;
     private final ExchangeGraph exchangeGraph;
     private final Mappers mappers;
-    public CashWithdrawal(final CommandInput input, final ArrayNode output,
+    public CashWithdrawal(final ExecutionCommand input, final ArrayNode output,
                           final Mappers mappers, final ExchangeGraph exchangeGraph) {
         this.input = input;
         this.exchangeGraph = exchangeGraph;
@@ -48,16 +48,17 @@ public class CashWithdrawal implements Command {
         double convertedAmount = exchangeGraph.convertCurrency("RON", account.getCurrency(), input.getAmount());
         double commission = user.getCommissionForTransaction(input.getAmount(), account.getCurrency(), exchangeGraph);
         if (account.getBalance() < convertedAmount * (1 + commission)) {
-            ObjectNode objectNode = new ObjectMapper().createObjectNode();
-            objectNode.put("timestamp", input.getTimestamp());
-            objectNode.put("description", "Insufficient funds");
+            ObjectNode objectNode = new ObjectNodeBuilder()
+                    .put("timestamp", input.getTimestamp())
+                    .put("description", "Insufficient funds").build();
             user.getTransactions().add(objectNode);
         } else {
             account.setBalance(account.getBalance() - convertedAmount * (1 + commission));
-            ObjectNode objectNode = new ObjectMapper().createObjectNode();
-            objectNode.put("timestamp", input.getTimestamp());
-            objectNode.put("amount", input.getAmount());
-            objectNode.put("description", "Cash withdrawal of " + input.getAmount());
+            ObjectNode objectNode = new ObjectNodeBuilder()
+                    .put("timestamp", input.getTimestamp())
+                    .put("amount", input.getAmount())
+                    .put("description", "Cash withdrawal of " + input.getAmount())
+                    .build();
             user.getTransactions().add(objectNode);
         }
     }

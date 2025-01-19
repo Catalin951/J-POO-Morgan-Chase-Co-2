@@ -9,11 +9,10 @@ import org.poo.checker.CheckerConstants;
 import org.poo.commerciant.Commerciant;
 import org.poo.exchange.Exchange;
 import org.poo.execution.Execute;
+import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.factories.CommerciantFactory;
-import org.poo.fileio.CommerciantInput;
-import org.poo.fileio.ExchangeInput;
-import org.poo.fileio.ObjectInput;
-import org.poo.fileio.UserInput;
+import org.poo.fileio.*;
 import org.poo.userDetails.User;
 import org.poo.utils.Utils;
 
@@ -85,13 +84,14 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
         if (
-//                filePath1.equals("test01_user_updates.json") ||
-//                filePath1.equals("test02_upgrade_plan.json") ||
-//                filePath1.equals("test03_commisions.json") ||
-//                filePath1.equals("test04_commisions_advanced.json") ||
-//                filePath1.equals("test05_savings_update.json") ||
-//                filePath1.equals("test06_cashback.json") ||
-                filePath1.equals("test07_simple_split_payment.json")
+                filePath1.equals("test01_user_updates.json") ||
+                filePath1.equals("test02_upgrade_plan.json") ||
+                filePath1.equals("test03_commisions.json") ||
+                filePath1.equals("test04_commisions_advanced.json") ||
+                filePath1.equals("test05_savings_update.json") ||
+                filePath1.equals("test06_cashback.json") ||
+                filePath1.equals("test07_simple_split_payment.json") ||
+                filePath1.equals("test08_advanced_split_payment.json")
         ) {
         System.out.println(filePath1);
 
@@ -122,12 +122,18 @@ public final class Main {
             commerciants[commerciantIndex++] = CommerciantFactory.createCommerciant(commerciantInput);
         }
 
-        Execute exec = new Execute(output, users, commerciants, exchanges, inputData.getCommands());
+        ExecutionCommand[] commands = new ExecutionCommand[inputData.getCommands().length];
+        int commandIndex = 0;
+        for (CommandInput commandInput : inputData.getCommands()) {
+            commands[commandIndex++] = new ExecutionCommand(commandInput);
+        }
+        SingletonExecute exec = SingletonExecute.getInstance(output, users, commerciants, exchanges, commands);
         exec.execution();
-        Utils.resetRandom();
         }
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);
+        Utils.resetRandom();
+        SingletonExecute.finishInstance();
     }
 
     /**

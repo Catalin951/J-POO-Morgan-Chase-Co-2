@@ -6,18 +6,18 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
 import org.poo.execution.Execute;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.account.Account;
 
 public final class Report implements Command {
     private final Mappers mappers;
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final ArrayNode output;
     private final int startTimestamp;
     private final int endTimestamp;
 
-    public Report(final CommandInput input, final ArrayNode output, final Mappers mappers) {
+    public Report(final ExecutionCommand input, final ArrayNode output, final Mappers mappers) {
         this.mappers = mappers;
         this.input = input;
         this.output = output;

@@ -4,11 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Data;
 import org.poo.Constants;
+import org.poo.execution.ExecutionCommand;
 import org.poo.fileio.UserInput;
 import org.poo.graph.ExchangeGraph;
 import org.poo.userDetails.account.Account;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.Queue;
 
 import static org.poo.Constants.currentYear;
 
@@ -25,12 +28,16 @@ public final class User {
     private final int age;
     private String servicePlan;
     private int nrOf300RonPayments = 0;
+    private Queue<ExecutionCommand> splitPaymentQueue;
+    private Queue<String> correspondingSplitPaymentAccount;
     private final String occupation;
     private final ArrayList<Account> accounts;
     private final ArrayNode transactions;
     private final HashMap<String, Account> aliasMap;
 
     public User(final UserInput userInput) {
+        splitPaymentQueue = new LinkedList<>();
+        correspondingSplitPaymentAccount = new LinkedList<>();
         firstName = userInput.getFirstName();
         lastName = userInput.getLastName();
         email = userInput.getEmail();

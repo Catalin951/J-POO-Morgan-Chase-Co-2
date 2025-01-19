@@ -6,21 +6,19 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
 import org.poo.commerciant.Commerciant;
 import org.poo.execution.Execute;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 
-import java.util.Map;
-
 public final class SendMoney implements Command {
     private final User[] users;
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final ExchangeGraph exchangeGraph;
     private final Mappers mappers;
     private final ArrayNode output;
-    public SendMoney(final CommandInput input, final ArrayNode output, final User[] users,
+    public SendMoney(final ExecutionCommand input, final ArrayNode output, final User[] users,
                      final ExchangeGraph exchangeGraph, final Mappers mappers) {
         this.users = users;
         this.input = input;
@@ -136,7 +134,8 @@ public final class SendMoney implements Command {
             payer.getTransactions().add(objectNode);
             payerAccount.getTransactions().add(objectNode);
         } else {
-            if (exchangeGraph.convertToRon(payerAccount.getCurrency(), input.getAmount()) >= 300) {
+            if (exchangeGraph.convertToRon(payerAccount.getCurrency(), input.getAmount()) >= 300
+                && payer.getServicePlan().equals("silver")) {
                 payer.setNrOf300RonPayments(payer.getNrOf300RonPayments() + 1);
             }
             objectNode.put("timestamp", input.getTimestamp());

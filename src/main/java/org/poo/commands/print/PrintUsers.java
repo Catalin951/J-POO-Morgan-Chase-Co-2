@@ -4,16 +4,18 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
+import org.poo.execution.Execute;
+import org.poo.execution.ExecutionCommand;
 import org.poo.fileio.CommandInput;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 import org.poo.userDetails.card.Card;
 
 public final class PrintUsers implements Command {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final User[] users;
     private final ArrayNode output;
-    public PrintUsers(final CommandInput input, final User[] users, final ArrayNode output) {
+    public PrintUsers(final ExecutionCommand input, final User[] users, final ArrayNode output) {
         this.input = input;
         this.users = users;
         this.output = output;

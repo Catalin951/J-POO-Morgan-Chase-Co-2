@@ -22,7 +22,6 @@ import org.poo.commands.withdrawal.CashWithdrawal;
 import org.poo.commands.withdrawal.WithdrawSavings;
 import org.poo.commerciant.Commerciant;
 import org.poo.exchange.Exchange;
-import org.poo.fileio.CommandInput;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
@@ -31,14 +30,15 @@ import org.poo.userDetails.User;
  * This class Launches all the commands, initialises the HashMaps used in most commands,
  * initialises the exchangeGraph used to convert currencies
  */
-public final class Execute {
+public final class SingletonExecute {
     private final ArrayNode output;
     private final User[] users;
     private final Exchange[] exchanges;
     private final ExecutionCommand[] commands;
     private final Commerciant[] commerciants;
+    private static SingletonExecute instance;
 
-    public Execute(final ArrayNode output, final User[] users, final Commerciant[] commerciants,
+    private SingletonExecute(final ArrayNode output, final User[] users, final Commerciant[] commerciants,
                    final Exchange[] exchanges, final ExecutionCommand[] commands) {
         this.output = output;
         this.users = users;
@@ -46,7 +46,13 @@ public final class Execute {
         this.commands = commands;
         this.commerciants = commerciants;
     }
-
+    public static SingletonExecute getInstance(final ArrayNode output, final User[] users, final Commerciant[] commerciants,
+                       final Exchange[] exchanges, final ExecutionCommand[] commands) {
+        if (instance == null) {
+            instance = new SingletonExecute(output, users, commerciants, exchanges, commands);
+        }
+        return instance;
+    }
     /**
      * The method that does the initialisation and executes the commands
      */
@@ -168,6 +174,10 @@ public final class Execute {
         objectNode.put("timestamp", timestamp);
         objectNode.put("description", description);
         user.getTransactions().add(objectNode);
+    }
+
+    public static void finishInstance() {
+        instance = null;
     }
 }
 

@@ -3,15 +3,15 @@ package org.poo.commands.delete;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 import org.poo.userDetails.card.Card;
 
 public final class DeleteCard implements Command {
     private final User[] users;
-    private final CommandInput input;
-    public DeleteCard(final CommandInput input, final User[] users) {
+    private final ExecutionCommand input;
+    public DeleteCard(final ExecutionCommand input, final User[] users) {
         this.users = users;
         this.input = input;
     }

@@ -4,16 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.execution.Execute;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 
 public final class AddInterest {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final Mappers mappers;
     private final ArrayNode output;
-    public AddInterest(final CommandInput input, final ArrayNode output, final Mappers mappers) {
+    public AddInterest(final ExecutionCommand input, final ArrayNode output, final Mappers mappers) {
         this.input = input;
         this.mappers = mappers;
         this.output = output;

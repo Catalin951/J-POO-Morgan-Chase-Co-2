@@ -1,21 +1,19 @@
 package org.poo.commands.withdrawal;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.execution.Execute;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 
 public final class WithdrawSavings {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final Mappers mappers;
     private final ArrayNode output;
     private final ExchangeGraph exchangeGraph;
-    public WithdrawSavings(final CommandInput input, final ArrayNode output,
+    public WithdrawSavings(final ExecutionCommand input, final ArrayNode output,
                            final Mappers mappers, final ExchangeGraph exchangeGraph) {
         this.input = input;
         this.mappers = mappers;

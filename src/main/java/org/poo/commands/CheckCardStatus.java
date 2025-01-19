@@ -3,17 +3,17 @@ package org.poo.commands;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 import org.poo.userDetails.card.Card;
 
 public final class CheckCardStatus implements Command {
     private final User[] users;
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final ArrayNode output;
 
-    public CheckCardStatus(final CommandInput input, final User[] users, final ArrayNode output) {
+    public CheckCardStatus(final ExecutionCommand input, final User[] users, final ArrayNode output) {
         this.users = users;
         this.input = input;
         this.output = output;

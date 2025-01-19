@@ -4,10 +4,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
+import org.poo.execution.ExecutionCommand;
 import org.poo.userDetails.User;
 import org.poo.userDetails.card.Card;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.Queue;
 
 @Getter
 @Setter
@@ -17,12 +20,15 @@ public abstract class Account {
     private final ArrayList<Card> cards = new ArrayList<>();
     private double balance;
     private double minBalance;
+//    private Queue <ExecutionCommand> splitPaymentQueue;
+    private double currentSplitAmount;
     private ArrayNode transactions;
     private double totalSpendingThreshold = 0;
     private ArrayList<String> coupons = new ArrayList<>();
     // nrOfTransactions is the number of transactions to the nrOfTransactions commerciants
     private int nrOfTransactions = 0;
     public Account(final String currency, final String iban) {
+//        splitPaymentQueue = new LinkedList<>();
         this.currency = currency;
         this.iban = iban;
         transactions = new ObjectMapper().createArrayNode();

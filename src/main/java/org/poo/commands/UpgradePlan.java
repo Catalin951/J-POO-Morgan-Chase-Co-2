@@ -3,18 +3,18 @@ package org.poo.commands;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 
 public final class UpgradePlan {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final Mappers mappers;
     private final ExchangeGraph exchangeGraph;
     private final ArrayNode output;
-    public UpgradePlan(final CommandInput input, final ArrayNode output, final Mappers mappers, ExchangeGraph exchangeGraph) {
+    public UpgradePlan(final ExecutionCommand input, final ArrayNode output, final Mappers mappers, ExchangeGraph exchangeGraph) {
         this.input = input;
         this.mappers = mappers;
         this.exchangeGraph = exchangeGraph;

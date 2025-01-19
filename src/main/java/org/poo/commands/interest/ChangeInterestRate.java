@@ -5,16 +5,16 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
 import org.poo.execution.Execute;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.account.Account;
 
 public final class ChangeInterestRate implements Command {
     private final Mappers mapper;
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final ArrayNode output;
 
-    public ChangeInterestRate(final CommandInput input, final Mappers mappers,
+    public ChangeInterestRate(final ExecutionCommand input, final Mappers mappers,
                               final ArrayNode output) {
         this.mapper = mappers;
         this.input = input;

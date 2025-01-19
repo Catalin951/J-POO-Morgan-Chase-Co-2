@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class SplitPayment implements Command {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final ExchangeGraph exchangeGraph;
     private final Mappers mappers;
-    public SplitPayment(final CommandInput input, final ExchangeGraph exchangeGraph,
+    public SplitPayment(final ExecutionCommand input, final ExchangeGraph exchangeGraph,
                         final Mappers mappers) {
         this.input = input;
         this.exchangeGraph = exchangeGraph;
@@ -33,10 +33,27 @@ public final class SplitPayment implements Command {
      * At the end all the balances are updated
      */
     public void execute() {
+        // Add to each account the command so they know how much they have to pay and if all have paid
+        // also to be able to add to their accounts the transaction
+        int i = 0;
+        for (String iban : input.getAccounts()) {
+            Account account = mappers.getAccountForIban(iban);
+            if (account == null) {
+                throw new IllegalArgumentException("Invalid iban: " + iban);
+            }
+            User user = mappers.getUserForAccount(account);
+            if (user == null) {
+                throw new IllegalArgumentException("Invalid account: " + iban);
+            }
+            user.getSplitPaymentQueue().add(input);
+            user.getCorrespondingSplitPaymentAccount().add(iban);
+        }
+    }
+    /*
+    public void execute() {
         List<String> splittingIBANs = input.getAccounts();
         ArrayList<Account> splittingAccounts = new ArrayList<>();
         ArrayNode involvedAccountsArray = new ObjectMapper().createArrayNode();
-
         for (String splittingIBAN : splittingIBANs) {
             involvedAccountsArray.add(splittingIBAN);
             splittingAccounts.addFirst(mappers.getAccountForIban(splittingIBAN));
@@ -62,10 +79,7 @@ public final class SplitPayment implements Command {
         for (Account account : splittingAccounts) {
             String from = input.getCurrency();
             String to = account.getCurrency();
-            double convertedAmount = splitAmount;
-            if (!from.equals(to)) {
-                convertedAmount = exchangeGraph.convertCurrency(from, to, splitAmount);
-            }
+            double convertedAmount = exchangeGraph.convertCurrency(from, to, splitAmount);
             if (account.getBalance() < convertedAmount) {
                 addTransactionFailure(splittingAccounts, involvedAccountsArray,
                                       splitAmount, description, account.getIban());
@@ -98,4 +112,5 @@ public final class SplitPayment implements Command {
             mappers.getUserForAccount(account).getTransactions().add(objectNode);
         }
     }
+     */
 }

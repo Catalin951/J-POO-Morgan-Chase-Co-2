@@ -3,7 +3,7 @@ package org.poo.commands.create;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
@@ -11,9 +11,9 @@ import org.poo.userDetails.card.ClassicCard;
 import org.poo.utils.Utils;
 
 public final class CreateCard implements Command {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final Mappers mappers;
-    public CreateCard(final CommandInput input, final Mappers mappers) {
+    public CreateCard(final ExecutionCommand input, final Mappers mappers) {
         this.input = input;
         this.mappers = mappers;
     }

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
 import org.poo.commerciant.Commerciant;
 import org.poo.execution.Execute;
-import org.poo.fileio.CommandInput;
+import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
@@ -14,11 +14,11 @@ import org.poo.userDetails.account.Account;
 import org.poo.userDetails.card.Card;
 
 public final class PayOnline implements Command {
-    private final CommandInput input;
+    private final ExecutionCommand input;
     private final ArrayNode output;
     private final ExchangeGraph exchangeGraph;
     private final Mappers mappers;
-    public PayOnline(final CommandInput input, final ExchangeGraph exchangeGraph,
+    public PayOnline(final ExecutionCommand input, final ExchangeGraph exchangeGraph,
                      final ArrayNode output, final Mappers mappers) {
         this.input = input;
         this.exchangeGraph = exchangeGraph;
@@ -90,7 +90,8 @@ public final class PayOnline implements Command {
             // Give cashback
             commerciant.giveCashback(requestedAccount.getCurrency(), convertedAmount,
                                      requestedUser, requestedAccount, exchangeGraph);
-            if (exchangeGraph.convertToRon(input.getCurrency(), input.getAmount()) >= 300) {
+            if (exchangeGraph.convertToRon(input.getCurrency(), input.getAmount()) >= 300
+                && requestedUser.getServicePlan().equals("silver")) {
                 requestedUser.setNrOf300RonPayments(requestedUser.getNrOf300RonPayments() + 1);
             }
 //            double ronAmount = exchangeGraph.convertToRon(requestedAccount.getCurrency(), convertedAmount);
