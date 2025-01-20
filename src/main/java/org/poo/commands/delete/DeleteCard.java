@@ -47,7 +47,6 @@ public final class DeleteCard implements Command {
         if (mappers.hasUserToBusinessEntity(user)) {
             BusinessEntity businessEntity = mappers.getBusinessEntityForUser(user);
             if (businessEntity.getAccount().equals(account)) {
-                System.out.println("account destroying");
                 if (businessEntity.getRole().equals("owner")
                     || businessEntity.getRole().equals("manager")
                     || (businessEntity.getRole().equals("employee")
@@ -63,7 +62,6 @@ public final class DeleteCard implements Command {
                 return;
             }
         }
-        System.out.println("account destroyed");
         objectNode.put("timestamp", input.getTimestamp());
         objectNode.put("description", "The card has been destroyed");
         objectNode.put("card", card.getCardNumber());

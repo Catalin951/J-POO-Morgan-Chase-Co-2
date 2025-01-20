@@ -29,11 +29,7 @@ public final class DeleteAccount implements Command {
         if (mappers.hasUserToBusinessEntity(requestedUser)) {
             BusinessEntity businessEntity = mappers.getBusinessEntityForUser(requestedUser);
             if (businessEntity.getAccount().equals(requestedAccount)) {
-                System.out.println("account destroying");
-                if (businessEntity.getRole().equals("owner")) {
-                    System.out.println("account destroyed");
-                } else {
-                    System.out.println("account destroy failed, try to destroy but not owner");
+                if (!businessEntity.getRole().equals("owner")) {
                     return;
                 }
             }
