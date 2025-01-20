@@ -16,8 +16,7 @@ public final class ChangeSpendingLimit {
     public void execute() {
         User user = mappers.getUserForEmail(input.getEmail());
         if (!mappers.hasUserToBusinessEntity(user)) {
-            throw new IllegalArgumentException("User " + user.getEmail()
-                    + " does not have a business entity");
+            return;
         }
         BusinessEntity businessEntity = mappers.getBusinessEntityForUser(user);
         Account account = mappers.getAccountForIban(input.getAccount());
@@ -25,7 +24,7 @@ public final class ChangeSpendingLimit {
             throw new IllegalArgumentException("Account does not exist");
         }
         if (!businessEntity.getAccount().equals(account)) {
-            throw new IllegalArgumentException("email and account do not match");
+            return;
         }
         for (BusinessEntity iterBusinessEntity : account.getBusinessEntities()) {
             iterBusinessEntity.setSpendingLimit(input.getAmount());

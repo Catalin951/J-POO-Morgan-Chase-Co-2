@@ -26,7 +26,7 @@ public final class AddNewBusinessAssociate {
             throw new IllegalArgumentException("User not found");
         }
         if (mappers.hasUserToBusinessEntity(user)) {
-            throw new IllegalArgumentException("user already exists in business account");
+            return;
         }
         for (BusinessEntity businessEntity : account.getBusinessEntities()) {
             if (businessEntity.getBusinessUser().equals(user)) {

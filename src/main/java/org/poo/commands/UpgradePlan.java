@@ -22,7 +22,7 @@ public final class UpgradePlan {
     public void execute() {
         Account account = mappers.getAccountForIban(input.getAccount());
         if (account == null) {
-            throw new IllegalArgumentException("Account not found");
+            return;
         }
         User user = mappers.getUserForAccount(account);
         if (user == null) {

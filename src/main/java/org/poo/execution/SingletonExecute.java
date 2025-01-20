@@ -22,6 +22,7 @@ import org.poo.commands.payment.PayOnline;
 import org.poo.commands.payment.SendMoney;
 import org.poo.commands.payment.SplitPayment;
 import org.poo.commands.print.PrintTransactions;
+import org.poo.commands.payment.RejectSplitPayment;
 import org.poo.commands.UpgradePlan;
 import org.poo.commands.print.PrintUsers;
 import org.poo.commands.reports.BusinessReport;
@@ -158,6 +159,9 @@ public final class SingletonExecute {
                     break;
                 case "businessReport":
                     new BusinessReport(command, mappers).execute();
+                    break;
+                case "rejectSplitPayment":
+                    new RejectSplitPayment(command, mappers).execute();
                     break;
                 default:
                     throw new IllegalArgumentException("Command " + command.getCommand()

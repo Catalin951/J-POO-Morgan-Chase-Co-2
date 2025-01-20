@@ -49,6 +49,12 @@ public final class WithdrawSavings {
         }
     }
 
+    /**
+     * Gets the first account that has the same currency as the one in the input
+     * and is of type classic
+     * @param user search the accounts in this user's account list
+     * @return the requested account
+     */
     public Account getReceivingAccount(final User user) {
         for (Account account : user.getAccounts()) {
             if (account.getCurrency().equals(input.getCurrency())

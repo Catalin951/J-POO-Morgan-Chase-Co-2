@@ -28,20 +28,24 @@ public final class BusinessReport {
         if (input.getType().equals("transaction")) {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode objectNode = objectMapper.createObjectNode();
-            objectNode.put("command", "businessReport");
-            objectNode.put("timestamp", input.getTimestamp());
             ObjectNode outputNode = objectMapper.createObjectNode();
-            outputNode.put("IBAN", account.getIban());
-            outputNode.put("balance", account.getBalance());
-            outputNode.put("currency", account.getCurrency());
-            objectNode.put("spending limit", account
-                                            .getBusinessEntities()
-                                            .getFirst()
-                                            .getSpendingLimit());
-            objectNode.put("deposit limit", account
-                                            .getBusinessEntities()
-                                            .getFirst()
-                                            .getDepositLimit());
+            try {
+                objectNode.put("command", "businessReport");
+                objectNode.put("timestamp", input.getTimestamp());
+                outputNode.put("IBAN", account.getIban());
+                outputNode.put("balance", account.getBalance());
+                outputNode.put("currency", account.getCurrency());
+                objectNode.put("spending limit", account
+                        .getBusinessEntities()
+                        .getFirst()
+                        .getSpendingLimit());
+                objectNode.put("deposit limit", account
+                        .getBusinessEntities()
+                        .getFirst()
+                        .getDepositLimit());
+            } catch (RuntimeException e) {
+                return;
+            }
             double totalSpent = 0;
             double totalDeposited = 0;
             ArrayNode managersArray = objectMapper.createArrayNode();

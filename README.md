@@ -50,7 +50,7 @@ These classes rely on GraphExchange to properly convert one currency to another.
 - **SendMoney.java**: Enables money transfers between accounts.
 - **SplitPayment.java**: Allows users to split a payment among multiple accounts with equal or varying amounts. In case of failure, all of the accounts get an error. A command is queued into all the accounts that participate in transaction, and they either have to accept it or reject it. When all participants have replied, the transaction is completed.
 - **AcceptSplitPayment**: Retrieves the ExecutionCommand from the queue, increase the acceptedSplitPayments field by one and if it becomes equal to the number of participants, starts handling the transaction. 
-- **RejectSplitPayment**: Not yet implemented.
+- **RejectSplitPayment**: Retrieves the ExecutionCommand from the queue. Left to implement the adding of the transaction failure to the involved accounts.
 
 #### **Print**
 - **PrintTransactions.java**: Outputs the transaction history of a user.
@@ -64,8 +64,13 @@ These classes rely on GraphExchange to properly convert one currency to another.
 - **WithdrawSavings**: Allows to withdraw an amount from a savings account if the user has a classic account and is older than 21.
 
 #### **Reports**
-- **Report.java**: This command is outputting the transactions of an account between 2 specific timestamps. Different transactions are chosen depending on what account is used. Through the entirety of the program the transactions are being placed in the transactions fields of the account objects and this is where it is being put to use.
-- **SpendingsReport.java**: A report only for classic accounts that outputs the transactions and how much has been spent on every commerciant. This is achieved with the internal class CommerciantPayments which contains a TreeMap that maps the name of the commerciant to the amount they have at a certain moment in a sorted fashion (by name). whenever the add method is called again, the value increases by the amount it was called with.
+- **Report.java**: This command is outputting the transactions of an account between 2 specific timestamps. Different transactions are
+                    chosen depending on what account is used. Through the entirety of the program the transactions are being placed in
+                    the transactions fields of the account objects and this is where it is being put to use.
+- **SpendingsReport.java**: A report only for classic accounts that outputs the transactions and how much has been spent on every commerciant.
+                            This is achieved with the internal class CommerciantPayments which contains a TreeMap that maps the name of the
+                            commerciant to the amount they have at a certain moment in a sorted fashion (by name). whenever the add method is called again,
+                            the value increases by the amount it was called with.
 - **BusinessReport**: Not yet finished, for now it just makes a report of the transaction type for the entire timeline (not between the requested timestamps)
 
 ### Exchange
@@ -78,7 +83,7 @@ These classes rely on GraphExchange to properly convert one currency to another.
 
 ### Execution
 
-- **Execute.java**: The main class in this program. The singleton design pattern is used, making it possible only for one instance of the class to exist at a time. It is the invoker of the command design pattern.
+- **SingletonExecute.java**: The main class in this program. The singleton design pattern is used, making it possible only for one instance of the class to exist at a time. It is the invoker of the command design pattern.
 
 
 ### Factories

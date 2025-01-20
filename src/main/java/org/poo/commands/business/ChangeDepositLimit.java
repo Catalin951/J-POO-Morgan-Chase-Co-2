@@ -25,7 +25,7 @@ public final class ChangeDepositLimit {
             throw new IllegalArgumentException("Account not found");
         }
         if (!businessEntity.getAccount().equals(account)) {
-            throw new IllegalArgumentException("email and account do not match");
+            return;
         }
         for (BusinessEntity iterBusinessEntity : account.getBusinessEntities()) {
             iterBusinessEntity.setDepositLimit(input.getAmount());

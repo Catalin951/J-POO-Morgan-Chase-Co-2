@@ -61,6 +61,13 @@ public final class ExchangeGraph {
         }
         return amount * totalRate;
     }
+
+    /**
+     * Helper function that quickly converts the given currency to RON
+     * @param fromCurrency the currency type you want to convert
+     * @param amount the amount of currency
+     * @return the converted amount to ron
+     */
     public double convertToRon(final String fromCurrency, final double amount) {
         return convertCurrency(fromCurrency, "RON", amount);
     }

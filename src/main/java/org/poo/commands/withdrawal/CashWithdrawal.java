@@ -27,7 +27,7 @@ public final class CashWithdrawal implements Command {
     public void execute() {
         User user = mappers.getUserForEmail(input.getEmail());
         if (user == null) {
-            throw new IllegalArgumentException("User not found");
+            return;
         }
         Account account = null;
         Card card = null;

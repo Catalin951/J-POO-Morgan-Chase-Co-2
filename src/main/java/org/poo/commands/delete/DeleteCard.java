@@ -25,16 +25,20 @@ public final class DeleteCard implements Command {
      * and removes it from the account
      */
     public void execute() {
-        for (User user : users) {
-            for (Account account : user.getAccounts()) {
-                int i = 0;
-                for (Card card : account.getCards()) {
-                    if (card.getCardNumber().equals(input.getCardNumber())) {
-                        checkBusiness(user, account, card, i);
+        try {
+            for (User user : users) {
+                for (Account account : user.getAccounts()) {
+                    int i = 0;
+                    for (Card card : account.getCards()) {
+                        if (card.getCardNumber().equals(input.getCardNumber())) {
+                            checkBusiness(user, account, card, i);
+                        }
+                        i++;
                     }
-                    i++;
                 }
             }
+        } catch (RuntimeException e) {
+            return;
         }
     }
     private void checkBusiness(final User user, final Account account,

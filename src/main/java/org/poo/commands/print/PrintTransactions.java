@@ -25,7 +25,8 @@ public final class PrintTransactions implements Command {
         if (requestedUser == null) {
             throw new IllegalArgumentException("User not found");
         }
-        ObjectNode objectNode = new ObjectMapper().createObjectNode();
+        try {
+            ObjectNode objectNode = new ObjectMapper().createObjectNode();
         objectNode.put("command", "printTransactions");
         ArrayNode transactionsCopy = requestedUser.getTransactions().deepCopy();
         ArrayNode sortedArray = new ObjectMapper().createArrayNode();
@@ -39,5 +40,8 @@ public final class PrintTransactions implements Command {
         objectNode.set("output", sortedArray);
         objectNode.put("timestamp", input.getTimestamp());
         output.add(objectNode);
+        } catch (Exception e) {
+            return;
+        }
     }
 }

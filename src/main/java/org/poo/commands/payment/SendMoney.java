@@ -48,7 +48,7 @@ public final class SendMoney implements Command {
             }
         }
         if (payer == null) {
-            throw new IllegalArgumentException("User not found");
+            return;
         }
         Account receiverAccount = mappers.getAccountForIban(input.getReceiver());
         if (mappers.hasAccountToCommerciant(receiverAccount)) {
@@ -165,11 +165,15 @@ public final class SendMoney implements Command {
             objectNode.put("transferType", "sent");
             payer.getTransactions().add(objectNode);
             payerAccount.getTransactions().add(objectNode);
-            if (mappers.hasUserToBusinessEntity(payer)) {
-                BusinessEntity businessEntity = mappers.getBusinessEntityForUser(payer);
-                if (businessEntity.getAccount().equals(payerAccount)) {
-                    businessEntity.getTransactions().add(objectNode);
+            try {
+                if (mappers.hasUserToBusinessEntity(payer)) {
+                    BusinessEntity businessEntity = mappers.getBusinessEntityForUser(payer);
+                    if (businessEntity.getAccount().equals(payerAccount)) {
+                        businessEntity.getTransactions().add(objectNode);
+                    }
                 }
+            } catch (Exception e) {
+                return;
             }
             // Make payment
             payerAccount.setBalance(payerAccount.getBalance()
