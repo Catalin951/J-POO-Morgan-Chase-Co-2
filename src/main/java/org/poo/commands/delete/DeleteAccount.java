@@ -4,17 +4,20 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
-import org.poo.execution.Execute;
 import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
+import org.poo.userDetails.account.BusinessEntity;
 
 public final class DeleteAccount implements Command {
     private final ExecutionCommand input;
     private final ArrayNode output;
     private final Mappers mappers;
-    public DeleteAccount(final ExecutionCommand input, final ArrayNode output, final Mappers mappers) {
+    public DeleteAccount(final ExecutionCommand input,
+                         final ArrayNode output,
+                         final Mappers mappers) {
         this.input = input;
         this.output = output;
         this.mappers = mappers;
@@ -23,9 +26,20 @@ public final class DeleteAccount implements Command {
     public void execute() {
         User requestedUser = mappers.getUserForEmail(input.getEmail());
         Account requestedAccount = mappers.getAccountForIban(input.getAccount());
-
+        if (mappers.hasUserToBusinessEntity(requestedUser)) {
+            BusinessEntity businessEntity = mappers.getBusinessEntityForUser(requestedUser);
+            if (businessEntity.getAccount().equals(requestedAccount)) {
+                System.out.println("account destroying");
+                if (businessEntity.getRole().equals("owner")) {
+                    System.out.println("account destroyed");
+                } else {
+                    System.out.println("account destroy failed, try to destroy but not owner");
+                    return;
+                }
+            }
+        }
         if (requestedAccount == null) {
-            output.add(Execute.makeGeneralError("deleteAccount",
+            output.add(SingletonExecute.makeGeneralError("deleteAccount",
                     "Account not found",
                     input.getTimestamp()));
             return;

@@ -1,5 +1,6 @@
 package org.poo.commerciant;
 
+import org.poo.Constants;
 import org.poo.fileio.CommerciantInput;
 import org.poo.graph.ExchangeGraph;
 import org.poo.userDetails.User;
@@ -16,16 +17,13 @@ public final class NrOfTransactions extends Commerciant {
         int nrOfTransactions = payerAccount.getNrOfTransactions();
         payerAccount.setNrOfTransactions(nrOfTransactions + 1);
         double couponCashback = this.getCouponCashbackAndRemove(payerAccount);
-        if (nrOfTransactions == 2) {
+        if (nrOfTransactions == Constants.FIRST_TRANSACTIONS_CHECKPOINT) {
             payerAccount.getCoupons().addLast("Food");
-        }
-        else if (nrOfTransactions == 5) {
+        } else if (nrOfTransactions == Constants.SECOND_TRANSACTIONS_CHECKPOINT) {
             payerAccount.getCoupons().addLast("Clothes");
-        }
-        else if (nrOfTransactions == 10) {
+        } else if (nrOfTransactions == Constants.THIRD_TRANSACTIONS_CHECKPOINT) {
             payerAccount.getCoupons().addLast("Tech");
         }
         payerAccount.setBalance(payerAccount.getBalance() + amountPaid * couponCashback);
-        System.out.println("coupon cashback in nrOfTransactions" + couponCashback);
     }
 }

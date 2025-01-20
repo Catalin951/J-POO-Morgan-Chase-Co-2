@@ -23,6 +23,14 @@ public final class AcceptSplitPayment implements Command {
         this.exchangeGraph = exchangeGraph;
         this.mappers = mappers;
     }
+    /**
+     * This command returns an exception if not all the given accounts exist
+     * Uses the exchangeGraph to find a path between the currencies of each
+     * account and the given currency and makes the conversion.
+     * Firstly checks if the accounts have enough money,
+     * an error being placed in all users and accounts if not
+     * At the end all the balances are updated
+     */
     public void execute() {
         User currentSplitUser = mappers.getUserForEmail(input.getEmail());
         if (currentSplitUser == null) {
@@ -42,10 +50,7 @@ public final class AcceptSplitPayment implements Command {
             for (String splittingIBAN : splittingIBANs) {
                 involvedAccountsArray.add(splittingIBAN);
                 Account splittingAccount = mappers.getAccountForIban(splittingIBAN);
-                User splittingUser = mappers.getUserForAccount(splittingAccount);
-//                splittingUser.getCorrespondingSplitPaymentAccount().remove();
-//                splittingUser.getSplitPaymentQueue().remove();
-                double splitAmount = 0;
+                double splitAmount;
                 if (command.getSplitPaymentType().equals("equal")) {
                     splitAmount = command.getAmount() / command.getAccounts().size();
                 } else {
@@ -60,7 +65,8 @@ public final class AcceptSplitPayment implements Command {
                 throw new IllegalArgumentException("Not all accounts exist");
             }
 
-            ObjectNode outputNode = makeOutputNode(command, amountForUsersArray, involvedAccountsArray);
+            ObjectNode outputNode = makeOutputNode(command,
+                    amountForUsersArray, involvedAccountsArray);
             ArrayList<Double> newBalances = new ArrayList<>();
 
             for (Account account : splittingAccounts) {
@@ -84,12 +90,11 @@ public final class AcceptSplitPayment implements Command {
                 i++;
             }
         }
-//        } else {
-//            currentSplitUser.getSplitPaymentQueue().remove();
-//        }
     }
 
-    private static ObjectNode makeOutputNode(ExecutionCommand command, ArrayNode amountForUsersArray, ArrayNode involvedAccountsArray) {
+    private static ObjectNode makeOutputNode(final ExecutionCommand command,
+                                             final ArrayNode amountForUsersArray,
+                                             final ArrayNode involvedAccountsArray) {
         ObjectNode objectNode = new ObjectMapper().createObjectNode();
         objectNode.put("timestamp", command.getTimestamp());
         String formattedString = String.format("%.2f", command.getAmount())
@@ -100,8 +105,7 @@ public final class AcceptSplitPayment implements Command {
         if (command.getSplitPaymentType().equals("custom")) {
             objectNode.set("amountForUsers", amountForUsersArray);
             objectNode.put("splitPaymentType", "custom");
-        }
-        else {
+        } else {
             objectNode.put("amount", command.getAmount() / command.getAccounts().size());
             objectNode.put("splitPaymentType", "equal");
         }
@@ -109,7 +113,8 @@ public final class AcceptSplitPayment implements Command {
         return objectNode;
     }
 
-    private void addTransactionFailure(final ArrayList<Account> splittingAccounts, ObjectNode outputNode) {
+    private void addTransactionFailure(final ArrayList<Account> splittingAccounts,
+                                       final ObjectNode outputNode) {
         for (Account account : splittingAccounts) {
             account.getTransactions().add(outputNode);
             mappers.getUserForAccount(account).getTransactions().add(outputNode);

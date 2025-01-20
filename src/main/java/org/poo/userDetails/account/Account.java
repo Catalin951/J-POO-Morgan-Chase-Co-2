@@ -4,13 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.Getter;
 import lombok.Setter;
-import org.poo.execution.ExecutionCommand;
+import org.poo.Constants;
 import org.poo.userDetails.User;
 import org.poo.userDetails.card.Card;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.Queue;
 
 @Getter
 @Setter
@@ -20,15 +18,16 @@ public abstract class Account {
     private final ArrayList<Card> cards = new ArrayList<>();
     private double balance;
     private double minBalance;
-//    private Queue <ExecutionCommand> splitPaymentQueue;
     private double currentSplitAmount;
     private ArrayNode transactions;
     private double totalSpendingThreshold = 0;
     private ArrayList<String> coupons = new ArrayList<>();
-    // nrOfTransactions is the number of transactions to the nrOfTransactions commerciants
+    private final User owner = null;
+    protected ArrayList<BusinessEntity> businessEntities = null;
+    private final ArrayList<User> managers = null;
+    private final ArrayList<User> employees = null;
     private int nrOfTransactions = 0;
     public Account(final String currency, final String iban) {
-//        splitPaymentQueue = new LinkedList<>();
         this.currency = currency;
         this.iban = iban;
         transactions = new ObjectMapper().createArrayNode();
@@ -43,32 +42,35 @@ public abstract class Account {
      * @param convertedAmount the amount spent in RON
      * @return the cashback to be received as a percentage
      */
-    public double getThresholdCashback(User user, double convertedAmount) {
+    public double getThresholdCashback(final User user, final double convertedAmount) {
         totalSpendingThreshold += convertedAmount;
         double cashback = 0;
-        if (totalSpendingThreshold >= 100 && totalSpendingThreshold < 300) {
+        if (totalSpendingThreshold >= Constants.RON_100
+                && totalSpendingThreshold < Constants.RON_300) {
             switch (user.getServicePlan()) {
-                case "standard", "student" -> cashback = 0.1;
-                case "silver" -> cashback = 0.3;
-                case "gold" -> cashback = 0.5;
+                case "standard", "student" -> cashback = Constants.RON_100_STANDARD_CASHBACK;
+                case "silver" -> cashback = Constants.RON_100_SILVER_CASHBACK;
+                case "gold" -> cashback = Constants.RON_100_GOLD_CASHBACK;
+                default -> cashback = 0;
             }
-        }
-        else if (totalSpendingThreshold >= 300 && totalSpendingThreshold < 500) {
+        } else if (totalSpendingThreshold >= Constants.RON_300
+                    && totalSpendingThreshold < Constants.RON_500) {
             switch (user.getServicePlan()) {
-                case "standard", "student" -> cashback = 0.2;
-                case "silver" -> cashback = 0.4;
-                case "gold" -> cashback = 0.55;
+                case "standard", "student" -> cashback = Constants.RON_300_STANDARD_CASHBACK;
+                case "silver" -> cashback = Constants.RON_300_SILVER_CASHBACK;
+                case "gold" -> cashback = Constants.RON_300_GOLD_CASHBACK;
+                default -> cashback = 0;
             }
-        }
-        else if (totalSpendingThreshold >= 500) {
+        } else if (totalSpendingThreshold >= Constants.RON_500) {
             switch (user.getServicePlan()) {
-                case "standard", "student" -> cashback = 0.25;
-                case "silver" -> cashback = 0.5;
-                case "gold" -> cashback = 0.7;
+                case "standard", "student" -> cashback = Constants.RON_500_STANDARD_CASHBACK;
+                case "silver" -> cashback = Constants.RON_500_SILVER_CASHBACK;
+                case "gold" -> cashback = Constants.RON_500_GOLD_CASHBACK;
+                default -> cashback = 0;
             }
         }
         // percentage
-        return cashback / 100;
+        return cashback / Constants.PERCENT;
     }
     /**
      * Method for adding an amount to the balance of the account
@@ -90,6 +92,16 @@ public abstract class Account {
      * @return The string that is the type of the account
      */
     public abstract String getAccountType();
+
+    /**
+     * Function to be overridden in below classes
+     * @param interest the interest
+     */
     public abstract void changeInterest(double interest);
+
+    /**
+     * Function to be overridden in below classes
+     * @return the interest of the account
+     */
     public abstract double getInterest();
 }

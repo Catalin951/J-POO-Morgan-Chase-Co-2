@@ -7,6 +7,7 @@ import org.poo.execution.ExecutionCommand;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
+import org.poo.userDetails.account.BusinessEntity;
 import org.poo.userDetails.card.OneTimeCard;
 import org.poo.utils.Utils;
 
@@ -21,7 +22,6 @@ public final class CreateOneTimeCard implements Command {
         User requestedUser = mappers.getUserForEmail(input.getEmail());
 
         if (requestedUser == null) {
-            System.out.println("user " + input.getEmail() + " not found for CreateCard");
             return;
         }
         Account account = mappers.getAccountForIban(input.getAccount());
@@ -41,8 +41,13 @@ public final class CreateOneTimeCard implements Command {
 
         requestedUser.getTransactions().add(objectNode);
         account.getTransactions().add(objectNode);
-
         OneTimeCard newCard = new OneTimeCard(cardNumber);
+        if (mappers.hasUserToBusinessEntity(requestedUser)) {
+            BusinessEntity businessEntity = mappers.getBusinessEntityForUser(requestedUser);
+            if (businessEntity.getAccount().equals(account)) {
+                businessEntity.addCard(newCard);
+            }
+        }
         account.getCards().addLast(newCard);
     }
 }

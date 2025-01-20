@@ -3,14 +3,16 @@ package org.poo.commands.payment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.Constants;
 import org.poo.commands.Command;
 import org.poo.commerciant.Commerciant;
-import org.poo.execution.Execute;
 import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
+import org.poo.userDetails.account.BusinessEntity;
 import org.poo.userDetails.card.Card;
 
 public final class PayOnline implements Command {
@@ -65,19 +67,28 @@ public final class PayOnline implements Command {
             return;
         }
         if (requestedCard.isFrozen()) {
-            Execute.addTransactionError("The card is frozen",
+            SingletonExecute.addTransactionError("The card is frozen",
                     input.getTimestamp(), requestedUser);
             return;
         }
         String from = input.getCurrency();
         String to = requestedAccount.getCurrency();
         double convertedAmount = exchangeGraph.convertCurrency(from, to, input.getAmount());
-        double commission = requestedUser.getCommissionForTransaction(input.getAmount(), from, exchangeGraph);
-        System.out.println("Commission in payonline: " + commission);
+        double commission = requestedUser.getCommissionForTransaction(input.getAmount(),
+                                                                    from,
+                                                                    exchangeGraph);
         if (requestedAccount.getBalance() - convertedAmount * (1 + commission) < 0) {
-            Execute.addTransactionError("Insufficient funds",
+            SingletonExecute.addTransactionError("Insufficient funds",
                     input.getTimestamp(), requestedUser);
         } else {
+            if (mappers.hasUserToBusinessEntity(requestedUser)) {
+                BusinessEntity businessEntity = mappers.getBusinessEntityForUser(requestedUser);
+                if (businessEntity.getAccount().equals(requestedAccount)) {
+                    if (!businessEntity.canPayOnline(convertedAmount * (1 + commission))) {
+                        return;
+                    }
+                }
+            }
             objectNode.put("timestamp", input.getTimestamp());
             objectNode.put("description", "Card payment");
             objectNode.put("amount", convertedAmount);
@@ -90,14 +101,11 @@ public final class PayOnline implements Command {
             // Give cashback
             commerciant.giveCashback(requestedAccount.getCurrency(), convertedAmount,
                                      requestedUser, requestedAccount, exchangeGraph);
-            if (exchangeGraph.convertToRon(input.getCurrency(), input.getAmount()) >= 300
+            if (exchangeGraph.convertToRon(input.getCurrency(),
+                input.getAmount()) >= Constants.RON_300
                 && requestedUser.getServicePlan().equals("silver")) {
                 requestedUser.setNrOf300RonPayments(requestedUser.getNrOf300RonPayments() + 1);
             }
-//            double ronAmount = exchangeGraph.convertToRon(requestedAccount.getCurrency(), convertedAmount);
-//            double thresholdCashback = requestedAccount.getThresholdCashback(requestedUser, ronAmount);
-//            requestedAccount.setBalance(requestedAccount.getBalance() + convertedAmount * thresholdCashback);
-            System.out.println("Cashback given in payonline");
         }
     }
 }

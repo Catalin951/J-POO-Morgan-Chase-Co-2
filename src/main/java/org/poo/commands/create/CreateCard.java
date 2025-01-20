@@ -7,6 +7,7 @@ import org.poo.execution.ExecutionCommand;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
+import org.poo.userDetails.account.BusinessEntity;
 import org.poo.userDetails.card.ClassicCard;
 import org.poo.utils.Utils;
 
@@ -24,6 +25,7 @@ public final class CreateCard implements Command {
             return;
         }
         Account account = mappers.getAccountForIban(input.getAccount());
+        User user = mappers.getUserForEmail(input.getEmail());
         ObjectNode objectNode = new ObjectMapper().createObjectNode();
         objectNode.put("timestamp", input.getTimestamp());
         if (account == null) {
@@ -42,6 +44,12 @@ public final class CreateCard implements Command {
         account.getTransactions().add(objectNode);
 
         ClassicCard newCard = new ClassicCard(cardNumber);
+        if (mappers.hasUserToBusinessEntity(user)) {
+            BusinessEntity businessEntity = mappers.getBusinessEntityForUser(user);
+            if (businessEntity.getAccount().equals(account)) {
+                businessEntity.addCard(newCard);
+            }
+        }
         account.getCards().addLast(newCard);
     }
 }

@@ -5,8 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
-import org.poo.execution.Execute;
 import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.account.Account;
 
@@ -46,7 +46,7 @@ public final class SpendingsReport implements Command {
         Account account = mappers.getAccountForIban(input.getAccount());
         ObjectMapper mapper = new ObjectMapper();
         if (account == null) {
-            output.add(Execute.makeGeneralError("spendingsReport",
+            output.add(SingletonExecute.makeGeneralError("spendingsReport",
                     "Account not found",
                     input.getTimestamp()));
             return;

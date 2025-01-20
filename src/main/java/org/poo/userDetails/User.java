@@ -2,7 +2,8 @@ package org.poo.userDetails;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.poo.Constants;
 import org.poo.execution.ExecutionCommand;
 import org.poo.fileio.UserInput;
@@ -13,13 +14,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static org.poo.Constants.currentYear;
+import static org.poo.Constants.CURRENT_YEAR;
 
 /**
  * This class is where all the information about an user is held
  * It contains an alias map that maps an alias to an account
  */
-@Data
+@Getter
+@Setter
 public final class User {
     private final String firstName;
     private final String lastName;
@@ -48,8 +50,7 @@ public final class User {
         aliasMap = new HashMap<>();
         if (occupation.equals("student")) {
             servicePlan = "student";
-        }
-        else {
+        } else {
             servicePlan = "standard";
         }
         String[] dateSegments = birthDate.split("-");
@@ -64,23 +65,23 @@ public final class User {
         age = getAge(birthYear, birthMonth, birthDay);
     }
 
-    private int getAge(int birthYear, int birthMonth, int birthDay) {
+    private int getAge(final int birthYear, final int birthMonth, final int birthDay) {
         int tempAge = 0;
         // Handle all cases of birthdate being bigger than current date
-        if (Constants.currentYear < birthYear
-            || Constants.currentYear == birthYear && Constants.currentMonth < birthMonth
-            || Constants.currentYear == birthYear && Constants.currentMonth == birthMonth
-                && Constants.currentDay < birthDay) {
-            throw new IllegalArgumentException("birthdate " + birthDate + " is greater than " + currentYear);
+        if (Constants.CURRENT_YEAR < birthYear
+            || Constants.CURRENT_YEAR == birthYear && Constants.CURRENT_MONTH < birthMonth
+            || Constants.CURRENT_YEAR == birthYear && Constants.CURRENT_MONTH == birthMonth
+                && Constants.CURRENT_DAY < birthDay) {
+            throw new IllegalArgumentException("birthdate " + birthDate
+                                                + " is greater than " + CURRENT_YEAR);
         }
         // If current year is birth year, age is 0
         // Else check for all other combinations
-        if (Constants.currentYear > birthYear) {
-            tempAge = Constants.currentYear - birthYear;
-            if (Constants.currentMonth < birthMonth) {
+        if (Constants.CURRENT_YEAR > birthYear) {
+            tempAge = Constants.CURRENT_YEAR - birthYear;
+            if (Constants.CURRENT_MONTH < birthMonth) {
                 tempAge--;
-            }
-            else if (Constants.currentMonth == birthMonth && Constants.currentDay < birthDay) {
+            } else if (Constants.CURRENT_MONTH == birthMonth && Constants.CURRENT_DAY < birthDay) {
                 tempAge--;
             }
         }
@@ -108,20 +109,23 @@ public final class User {
     /**
      * Depending on what type of servicePlan the user currently has, returns the commission taken on
      * the transaction to be made. Only in the silver plan the amount matters.
-     * @param amount The amount of RON the user is spending. It must be converted before using the method.
+     * @param amount The amount of RON the user is spending.
+     * It must be converted before using the method.
      * @return the commission as a percentage (0 % is no commission, it can also be 0.1% or 0.2 %)
      */
-    private double getCommission(double amount) {
+    private double getCommission(final double amount) {
         return switch (servicePlan) {
-            case "standard" -> (0.2 / 100);
+            case "standard" -> (Constants.SERVICE_PLAN_STANDARD_COMMISSION / Constants.PERCENT);
             case "silver" -> {
-                if (amount >= 500) {
-                    yield (0.1 / 100);
+                if (amount >= Constants.RON_500) {
+                    yield (Constants.SERVICE_PLAN_SILVER_COMMISSION / Constants.PERCENT);
                 }
                 yield 0.0;
             }
             case "student", "gold" -> 0.0;
-            default -> throw new IllegalArgumentException("Service plan " + servicePlan + " is not supported");
+            default -> throw new IllegalArgumentException("Service plan "
+                                                        + servicePlan
+                                                        + " is not supported");
         };
     }
 
@@ -132,7 +136,9 @@ public final class User {
      * @param exchangeGraph the graph that makes it possible to convert the currency
      * @return the commission
      */
-    public double getCommissionForTransaction(final double amount, final String from, ExchangeGraph exchangeGraph) {
+    public double getCommissionForTransaction(final double amount,
+                                              final String from,
+                                              final ExchangeGraph exchangeGraph) {
         double convertedAmount = exchangeGraph.convertCurrency(from, "RON", amount);
         return this.getCommission(convertedAmount);
     }

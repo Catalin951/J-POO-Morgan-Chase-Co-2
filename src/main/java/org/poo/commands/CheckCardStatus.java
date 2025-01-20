@@ -13,7 +13,8 @@ public final class CheckCardStatus implements Command {
     private final ExecutionCommand input;
     private final ArrayNode output;
 
-    public CheckCardStatus(final ExecutionCommand input, final User[] users, final ArrayNode output) {
+    public CheckCardStatus(final ExecutionCommand input, final User[] users,
+                           final ArrayNode output) {
         this.users = users;
         this.input = input;
         this.output = output;

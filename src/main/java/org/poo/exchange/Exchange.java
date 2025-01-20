@@ -1,9 +1,10 @@
 package org.poo.exchange;
-
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.poo.fileio.ExchangeInput;
 
-@Data
+@Getter
+@Setter
 public final class Exchange {
     private final String from;
     private final String to;

@@ -1,7 +1,7 @@
 package org.poo.commands.withdrawal;
 
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.execution.Execute;
+import org.poo.Constants;
+import org.poo.execution.SingletonExecute;
 import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
@@ -11,13 +11,11 @@ import org.poo.userDetails.account.Account;
 public final class WithdrawSavings {
     private final ExecutionCommand input;
     private final Mappers mappers;
-    private final ArrayNode output;
     private final ExchangeGraph exchangeGraph;
-    public WithdrawSavings(final ExecutionCommand input, final ArrayNode output,
-                           final Mappers mappers, final ExchangeGraph exchangeGraph) {
+    public WithdrawSavings(final ExecutionCommand input, final Mappers mappers,
+                           final ExchangeGraph exchangeGraph) {
         this.input = input;
         this.mappers = mappers;
-        this.output = output;
         this.exchangeGraph = exchangeGraph;
     }
 
@@ -30,14 +28,14 @@ public final class WithdrawSavings {
         if (!account.getAccountType().equals("savings")) {
             throw new IllegalArgumentException("Account is not of type savings.");
         }
-        if (user.getAge() < 21) {
-            Execute.addTransactionError("You don't have the minimum age required.",
+        if (user.getAge() < Constants.MINIMUM_AGE) {
+            SingletonExecute.addTransactionError("You don't have the minimum age required.",
                     input.getTimestamp(), user);
             return;
         }
         Account receivingAccount = getReceivingAccount(user);
         if (receivingAccount == null) {
-            Execute.addTransactionError("You do not have a classic account.",
+            SingletonExecute.addTransactionError("You do not have a classic account.",
                     input.getTimestamp(), user);
             return;
         }
@@ -45,21 +43,13 @@ public final class WithdrawSavings {
                                                 account.getCurrency(), input.getCurrency(),
                                                 input.getAmount());
 
-        double commission = user.getCommissionForTransaction(input.getAmount(), input.getCurrency(), exchangeGraph);
-        System.out.println("Commission in withdraw savings: " + commission);
-
         if (sendingAccountConvertedAmount < account.getBalance()) {
-            Execute.addTransactionError("Insufficient funds",
+            SingletonExecute.addTransactionError("Insufficient funds",
                     input.getTimestamp(), user);
-            return;
         }
-
-        double receivingAccountConvertedAmount = exchangeGraph.convertCurrency(
-                                                input.getCurrency(), receivingAccount.getCurrency(),
-                                                input.getAmount());
     }
 
-    public Account getReceivingAccount(User user) {
+    public Account getReceivingAccount(final User user) {
         for (Account account : user.getAccounts()) {
             if (account.getCurrency().equals(input.getCurrency())
                 && !account.getAccountType().equals("savings")) {

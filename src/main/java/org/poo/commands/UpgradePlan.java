@@ -1,8 +1,8 @@
 package org.poo.commands;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.Constants;
 import org.poo.execution.ExecutionCommand;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
@@ -13,12 +13,11 @@ public final class UpgradePlan {
     private final ExecutionCommand input;
     private final Mappers mappers;
     private final ExchangeGraph exchangeGraph;
-    private final ArrayNode output;
-    public UpgradePlan(final ExecutionCommand input, final ArrayNode output, final Mappers mappers, ExchangeGraph exchangeGraph) {
+    public UpgradePlan(final ExecutionCommand input, final Mappers mappers,
+                       final ExchangeGraph exchangeGraph) {
         this.input = input;
         this.mappers = mappers;
         this.exchangeGraph = exchangeGraph;
-        this.output = output;
     }
     public void execute() {
         Account account = mappers.getAccountForIban(input.getAccount());
@@ -38,7 +37,6 @@ public final class UpgradePlan {
             user.getTransactions().add(objectNode);
             return;
         }
-        // Can you go from standard to student? check error
         if ((newPlan.equals("standard") || newPlan.equals("student"))
                 || currentPlan.equals("gold")) {
             ObjectNode objectNode = new ObjectMapper().createObjectNode();
@@ -49,16 +47,16 @@ public final class UpgradePlan {
         }
         double fee = -1;
         if (newPlan.equals("silver")) {
-            fee = 100;
+            fee = Constants.RON_100;
         }
         if (newPlan.equals("gold")) {
             if (currentPlan.equals("standard") || currentPlan.equals("student")) {
-                fee = 350;
+                fee = Constants.RON_350_FEE;
             } else if (currentPlan.equals("silver")) {
-                if (user.getNrOf300RonPayments() >= 5) {
+                if (user.getNrOf300RonPayments() >= Constants.MINIMUM_PAYMENTS) {
                     fee = 0;
                 } else {
-                    fee = 250;
+                    fee = Constants.RON_250_FEE;
                 }
             }
         }

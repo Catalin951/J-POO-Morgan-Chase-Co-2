@@ -3,6 +3,7 @@ package org.poo.mapper;
 import org.poo.commerciant.Commerciant;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
+import org.poo.userDetails.account.BusinessEntity;
 
 import java.util.HashMap;
 
@@ -14,6 +15,7 @@ import java.util.HashMap;
  * name -> commerciant
  * email -> user
  * iban -> account
+ * user -> businessEntity
  */
 public final class Mappers {
     private final HashMap<Account, User> accountToUserMap;
@@ -21,6 +23,7 @@ public final class Mappers {
     private final HashMap<String, Commerciant> nameToCommerciantMap;
     private final HashMap<String, User> emailToUserMap;
     private final HashMap<String, Account> ibanToAccountMap;
+    private final HashMap<User, BusinessEntity> userToBusinessEntityMap;
 
     public Mappers() {
         this.accountToUserMap = new HashMap<>();
@@ -28,6 +31,36 @@ public final class Mappers {
         this.ibanToAccountMap = new HashMap<>();
         this.accountToCommerciantMap = new HashMap<>();
         this.nameToCommerciantMap = new HashMap<>();
+        this.userToBusinessEntityMap = new HashMap<>();
+    }
+    /**
+     * Maps the given user to a businessEntity
+     * @param user Key
+     * @param businessEntity Value
+     */
+    public void addUserToBusinessEntity(final User user, final BusinessEntity businessEntity) {
+        if (user != null && businessEntity != null) {
+            userToBusinessEntityMap.put(user, businessEntity);
+        } else {
+            throw new IllegalArgumentException("Commerciant or account is null");
+        }
+    }
+    /**
+     * Returns the  that the name is mapped to
+     * @param user Key
+     * @return The value which is the corresponding Commerciant
+     */
+    public BusinessEntity getBusinessEntityForUser(final User user) {
+        return userToBusinessEntityMap.get(user);
+    }
+
+    /**
+     * Returns true if the user has been mapped to a businessEntity or false otherwise
+     * @param user the mapped key
+     * @return true or false depending on whether the key was mapped or not
+     */
+    public boolean hasUserToBusinessEntity(final User user) {
+        return userToBusinessEntityMap.containsKey(user);
     }
     /**
      * Maps the given name to a commerciant
@@ -37,8 +70,7 @@ public final class Mappers {
     public void addNameToCommerciant(final String name, final Commerciant commerciant) {
         if (name != null && commerciant != null) {
             nameToCommerciantMap.put(name, commerciant);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("Commerciant or account is null");
         }
     }
@@ -49,15 +81,6 @@ public final class Mappers {
      */
     public Commerciant getCommerciantForName(final String name) {
         return nameToCommerciantMap.get(name);
-    }
-
-    /**
-     * Returns true if the account has been mapped to a commerciant or false otherwise
-     * @param name the mapped key
-     * @return true or false depending on whether the key was mapped or not
-     */
-    public boolean hasNameToCommerciant(final String name) {
-        return nameToCommerciantMap.containsKey(name);
     }
     /**
      * Maps the given account to a commerciant

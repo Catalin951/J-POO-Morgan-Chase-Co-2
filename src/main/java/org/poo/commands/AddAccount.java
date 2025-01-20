@@ -7,6 +7,7 @@ import org.poo.factories.AccountFactory;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
+import org.poo.userDetails.account.BusinessEntity;
 
 public final class AddAccount implements Command {
     private final ExecutionCommand input;
@@ -23,9 +24,12 @@ public final class AddAccount implements Command {
         if (requestedUser == null) {
             throw new IllegalArgumentException("User not found");
         }
-        System.out.println(requestedUser.getAge() );
 
         Account newAccount = AccountFactory.createAccount(input);
+        if (newAccount.getAccountType().equals("business")) {
+            BusinessEntity businessEntity = new BusinessEntity(requestedUser, "owner", newAccount);
+            mappers.addUserToBusinessEntity(requestedUser, businessEntity);
+        }
         mappers.addAccountToUser(newAccount, requestedUser);
         mappers.addIbanToAccount(newAccount.getIban(), newAccount);
         ObjectNode objectNode = new ObjectMapper().createObjectNode();

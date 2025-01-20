@@ -1,11 +1,12 @@
 package org.poo.execution;
-
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.poo.fileio.CommandInput;
 
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 public final class ExecutionCommand {
     private String command;
     private String email;
@@ -36,7 +37,7 @@ public final class ExecutionCommand {
     private List<String> accounts;
     private List<Double> amountForUsers;
 
-    public ExecutionCommand(CommandInput commandInput) {
+    public ExecutionCommand(final CommandInput commandInput) {
         splitAmountToPay = 0;
         acceptedSplitPayments = 0;
         this.command = commandInput.getCommand();
@@ -65,35 +66,5 @@ public final class ExecutionCommand {
         this.minBalance = commandInput.getMinBalance();
         this.accounts = commandInput.getAccounts();
         this.amountForUsers = commandInput.getAmountForUsers();
-    }
-    public ExecutionCommand(ExecutionCommand executionCommand) {
-        this.splitAmountToPay = executionCommand.splitAmountToPay;
-        this.acceptedSplitPayments = executionCommand.acceptedSplitPayments;
-        this.command = executionCommand.getCommand();
-        this.email = executionCommand.getEmail();
-        this.account = executionCommand.getAccount();
-        this.newPlanType = executionCommand.getNewPlanType();
-        this.role = executionCommand.getRole();
-        this.currency = executionCommand.getCurrency();
-        this.target = executionCommand.getTarget();
-        this.description = executionCommand.getDescription();
-        this.cardNumber = executionCommand.getCardNumber();
-        this.commerciant = executionCommand.getCommerciant();
-        this.receiver = executionCommand.getReceiver();
-        this.alias = executionCommand.getAlias();
-        this.accountType = executionCommand.getAccountType();
-        this.splitPaymentType = executionCommand.getSplitPaymentType();
-        this.type = executionCommand.getType();
-        this.location = executionCommand.getLocation();
-        this.timestamp = executionCommand.getTimestamp();
-        this.startTimestamp = executionCommand.getStartTimestamp();
-        this.endTimestamp = executionCommand.getEndTimestamp();
-        this.interestRate = executionCommand.getInterestRate();
-        this.spendingLimit = executionCommand.getSpendingLimit();
-        this.depositLimit = executionCommand.getDepositLimit();
-        this.amount = executionCommand.getAmount();
-        this.minBalance = executionCommand.getMinBalance();
-        this.accounts = executionCommand.getAccounts();
-        this.amountForUsers = executionCommand.getAmountForUsers();
     }
 }

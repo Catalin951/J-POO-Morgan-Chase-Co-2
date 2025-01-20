@@ -3,52 +3,87 @@ package org.poo.builder;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-public class ObjectNodeBuilder {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+/**
+ * Builder design pattern.
+ * Helper class that builds ObjectNodes for easy creation.
+ */
+public final class ObjectNodeBuilder {
     private final ObjectNode objectNode;
 
-    // Constructor
     public ObjectNodeBuilder() {
-        this.objectNode = objectMapper.createObjectNode();
+        this.objectNode = new ObjectMapper().createObjectNode();
     }
 
-    // Method to add a string field
-    public ObjectNodeBuilder put(String fieldName, String value) {
-        objectNode.put(fieldName, value);
+    /**
+     * Puts a field in the json as follows:
+     * @param fieldName the name of the field
+     * @param fieldValue the value (String) of the json
+     * @return the same builder
+     */
+    public ObjectNodeBuilder put(final String fieldName, final String fieldValue) {
+        objectNode.put(fieldName, fieldValue);
         return this;
     }
 
-    // Method to add an integer field
-    public ObjectNodeBuilder put(String fieldName, int value) {
-        objectNode.put(fieldName, value);
+    /**
+     * Puts a field in the json as follows:
+     * @param fieldName the name of the field
+     * @param fieldValue the value (int) of the json
+     * @return the same builder
+     */
+    public ObjectNodeBuilder put(final String fieldName, final int fieldValue) {
+        objectNode.put(fieldName, fieldValue);
         return this;
     }
 
-    // Method to add a long field
-    public ObjectNodeBuilder put(String fieldName, long value) {
-        objectNode.put(fieldName, value);
+    /**
+     * Puts a field in the json as follows:
+     * @param fieldName the name of the field
+     * @param fieldValue the value (long) of the json
+     * @return the same builder
+     */
+    public ObjectNodeBuilder put(final String fieldName, final long fieldValue) {
+        objectNode.put(fieldName, fieldValue);
         return this;
     }
 
-    // Method to add a boolean field
-    public ObjectNodeBuilder put(String fieldName, boolean value) {
-        objectNode.put(fieldName, value);
+    /**
+     * Puts a field in the json as follows:
+     * @param fieldName the name of the field
+     * @param fieldValue the value (boolean) of the json
+     * @return the same builder
+     */
+    public ObjectNodeBuilder put(final String fieldName, final boolean fieldValue) {
+        objectNode.put(fieldName, fieldValue);
         return this;
     }
 
-    // Method to add a double field
-    public ObjectNodeBuilder put(String fieldName, double value) {
-        objectNode.put(fieldName, value);
+    /**
+     * Puts a field in the json as follows:
+     * @param fieldName the name of the field
+     * @param fieldValue the value (double) of the json
+     * @return the same builder
+     */
+    public ObjectNodeBuilder put(final String fieldName, final double fieldValue) {
+        objectNode.put(fieldName, fieldValue);
         return this;
     }
 
-    // Method to add a custom ObjectNode field
-    public ObjectNodeBuilder put(String fieldName, ObjectNode value) {
-        objectNode.set(fieldName, value);
+    /**
+     * Puts a field in the json as follows:
+     * @param fieldName the name of the field
+     * @param fieldValue the value (another ObjectNode) of the json
+     * @return the same builder
+     */
+    public ObjectNodeBuilder put(final String fieldName, final ObjectNode fieldValue) {
+        objectNode.set(fieldName, fieldValue);
         return this;
     }
 
-    // Build method to return the ObjectNode
+    /**
+     * Completes the building process
+     * @return the objectNode with all the added fields
+     */
     public ObjectNode build() {
         return objectNode;
     }

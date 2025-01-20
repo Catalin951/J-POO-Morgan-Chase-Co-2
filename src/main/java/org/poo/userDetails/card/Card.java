@@ -1,11 +1,12 @@
 package org.poo.userDetails.card;
 
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.account.Account;
 
-
-@Data
+@Getter
+@Setter
 public abstract class Card {
     protected String cardNumber;
     protected String status;

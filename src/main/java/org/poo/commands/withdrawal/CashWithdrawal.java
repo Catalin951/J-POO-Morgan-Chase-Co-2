@@ -1,19 +1,18 @@
 package org.poo.commands.withdrawal;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.builder.ObjectNodeBuilder;
 import org.poo.commands.Command;
-import org.poo.execution.Execute;
 import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
 import org.poo.userDetails.card.Card;
 
-public class CashWithdrawal implements Command {
+public final class CashWithdrawal implements Command {
     private final ExecutionCommand input;
     private final ArrayNode output;
     private final ExchangeGraph exchangeGraph;
@@ -41,12 +40,16 @@ public class CashWithdrawal implements Command {
             }
         }
         if (card == null) {
-            output.add(Execute.makeGeneralError("cashWithdrawal",
+            output.add(SingletonExecute.makeGeneralError("cashWithdrawal",
                                       "Card not found", input.getTimestamp()));
             return;
         }
-        double convertedAmount = exchangeGraph.convertCurrency("RON", account.getCurrency(), input.getAmount());
-        double commission = user.getCommissionForTransaction(input.getAmount(), account.getCurrency(), exchangeGraph);
+        double convertedAmount = exchangeGraph.convertCurrency("RON",
+                                                            account.getCurrency(),
+                                                            input.getAmount());
+        double commission = user.getCommissionForTransaction(input.getAmount(),
+                                                            account.getCurrency(),
+                                                            exchangeGraph);
         if (account.getBalance() < convertedAmount * (1 + commission)) {
             ObjectNode objectNode = new ObjectNodeBuilder()
                     .put("timestamp", input.getTimestamp())

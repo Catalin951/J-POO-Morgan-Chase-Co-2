@@ -3,8 +3,8 @@ package org.poo.commands.interest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.poo.execution.Execute;
 import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
@@ -13,7 +13,8 @@ public final class AddInterest {
     private final ExecutionCommand input;
     private final Mappers mappers;
     private final ArrayNode output;
-    public AddInterest(final ExecutionCommand input, final ArrayNode output, final Mappers mappers) {
+    public AddInterest(final ExecutionCommand input, final ArrayNode output,
+                       final Mappers mappers) {
         this.input = input;
         this.mappers = mappers;
         this.output = output;
@@ -21,13 +22,13 @@ public final class AddInterest {
     public void execute() {
         Account account = mappers.getAccountForIban(input.getAccount());
         if (account == null) {
-            output.add(Execute.makeGeneralError("addInterest",
+            output.add(SingletonExecute.makeGeneralError("addInterest",
                     "Account not found",
                     input.getTimestamp()));
             return;
         }
         if (!account.getAccountType().equals("savings")) {
-            output.add(Execute.makeGeneralError("addInterest",
+            output.add(SingletonExecute.makeGeneralError("addInterest",
                     "This is not a savings account",
                     input.getTimestamp()));
             return;

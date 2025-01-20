@@ -12,6 +12,10 @@ public final class SetAlias implements Command {
         this.input = input;
         this.mappers = mappers;
     }
+
+    /**
+     * Sets an alias for an account
+     */
     public void execute() {
         User requestedUser = mappers.getUserForEmail(input.getEmail());
         if (requestedUser == null) {

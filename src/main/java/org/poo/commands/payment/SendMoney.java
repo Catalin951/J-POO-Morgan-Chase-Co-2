@@ -3,14 +3,16 @@ package org.poo.commands.payment;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.poo.Constants;
 import org.poo.commands.Command;
 import org.poo.commerciant.Commerciant;
-import org.poo.execution.Execute;
 import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.graph.ExchangeGraph;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.User;
 import org.poo.userDetails.account.Account;
+import org.poo.userDetails.account.BusinessEntity;
 
 public final class SendMoney implements Command {
     private final User[] users;
@@ -51,12 +53,11 @@ public final class SendMoney implements Command {
         Account receiverAccount = mappers.getAccountForIban(input.getReceiver());
         if (mappers.hasAccountToCommerciant(receiverAccount)) {
             this.sendToCommerciant(payer, payerAccount);
-        }
-        else {
+        } else {
             this.sendToUser(payer, payerAccount);
         }
     }
-    private void sendToUser(User payer, Account payerAccount) {
+    private void sendToUser(final User payer, final Account payerAccount) {
         User receiver = null;
         Account receiverAccount = null;
         for (User user : users) {
@@ -75,16 +76,16 @@ public final class SendMoney implements Command {
             }
         }
         if (payer == null || receiver == null) {
-            output.add(Execute.makeGeneralError("sendMoney", "User not found",
+            output.add(SingletonExecute.makeGeneralError("sendMoney", "User not found",
                                                 input.getTimestamp()));
             return;
         }
         String from = payerAccount.getCurrency();
         String to = receiverAccount.getCurrency();
         double convertedAmount = exchangeGraph.convertCurrency(from, to, input.getAmount());
-        double commission = payer.getCommissionForTransaction(input.getAmount(), from, exchangeGraph);
-        System.out.println("CHECK OUTPUT OF COMISSION ; Commission in sendmoney: " + commission);
-        // CHECK IF YOU MUST OUTPUT COMISSION TOO OR JUST THE INPTG.GETAMOUNT
+        double commission = payer.getCommissionForTransaction(input.getAmount(),
+                                                                from,
+                                                                exchangeGraph);
         ObjectNode objectNode = new ObjectMapper().createObjectNode();
         if (payerAccount.getBalance() - input.getAmount() * (1 + commission) < 0) {
             objectNode.put("timestamp", input.getTimestamp());
@@ -92,6 +93,14 @@ public final class SendMoney implements Command {
             payer.getTransactions().add(objectNode);
             payerAccount.getTransactions().add(objectNode);
         } else {
+            if (mappers.hasUserToBusinessEntity(payer)) {
+                BusinessEntity businessEntity = mappers.getBusinessEntityForUser(payer);
+                if (businessEntity.getAccount().equals(payerAccount)) {
+                    if (!businessEntity.canPayOnline(input.getAmount() * (1 + commission))) {
+                        return;
+                    }
+                }
+            }
             objectNode.put("timestamp", input.getTimestamp());
             objectNode.put("description", input.getDescription());
             objectNode.put("senderIBAN", payerAccount.getIban());
@@ -107,26 +116,27 @@ public final class SendMoney implements Command {
             receiverAccount.getTransactions().add(receiverNode);
 
             payerAccount.getTransactions().add(objectNode);
-            if (exchangeGraph.convertToRon(payerAccount.getCurrency(), input.getAmount()) >= 300) {
+            if (exchangeGraph.convertToRon(payerAccount.getCurrency(),
+                input.getAmount()) >= Constants.RON_300) {
                 payer.setNrOf300RonPayments(payer.getNrOf300RonPayments() + 1);
             }
             // Make payment
-            payerAccount.setBalance(payerAccount.getBalance() - input.getAmount() * (1 + commission));
+            payerAccount.setBalance(payerAccount.getBalance()
+                                    - input.getAmount() * (1 + commission));
             receiverAccount.setBalance(receiverAccount.getBalance() + convertedAmount);
         }
     }
 
-    private void sendToCommerciant(User payer, Account payerAccount) {
+    private void sendToCommerciant(final User payer, final Account payerAccount) {
         Account receiverAccount = mappers.getAccountForIban(input.getReceiver());
         Commerciant commerciant = mappers.getCommerciantForAccount(receiverAccount);
 
         String from = payerAccount.getCurrency();
         String to = receiverAccount.getCurrency();
-        double convertedAmount = input.getAmount();
-        convertedAmount = exchangeGraph.convertCurrency(from, to, input.getAmount());
-        double commission = payer.getCommissionForTransaction(input.getAmount(), from, exchangeGraph);
-        System.out.println("CHECK OUTPUT OF COMISSION ; Commission in sendmoney: " + commission);
-        // CHECK IF YOU MUST OUTPUT COMISSION TOO OR JUST THE INPTG.GETAMOUNT
+        double convertedAmount = exchangeGraph.convertCurrency(from, to, input.getAmount());
+        double commission = payer.getCommissionForTransaction(input.getAmount(),
+                                                            from,
+                                                            exchangeGraph);
         ObjectNode objectNode = new ObjectMapper().createObjectNode();
         if (payerAccount.getBalance() - input.getAmount() * (1 + commission) < 0) {
             objectNode.put("timestamp", input.getTimestamp());
@@ -134,7 +144,16 @@ public final class SendMoney implements Command {
             payer.getTransactions().add(objectNode);
             payerAccount.getTransactions().add(objectNode);
         } else {
-            if (exchangeGraph.convertToRon(payerAccount.getCurrency(), input.getAmount()) >= 300
+            if (mappers.hasUserToBusinessEntity(payer)) {
+                BusinessEntity businessEntity = mappers.getBusinessEntityForUser(payer);
+                if (businessEntity.getAccount().equals(payerAccount)) {
+                    if (!businessEntity.canPayOnline(input.getAmount() * (1 + commission))) {
+                        return;
+                    }
+                }
+            }
+            if (exchangeGraph.convertToRon(payerAccount.getCurrency(),
+                input.getAmount()) >= Constants.RON_300
                 && payer.getServicePlan().equals("silver")) {
                 payer.setNrOf300RonPayments(payer.getNrOf300RonPayments() + 1);
             }
@@ -145,26 +164,21 @@ public final class SendMoney implements Command {
             objectNode.put("amount", input.getAmount() + " " + from);
             objectNode.put("transferType", "sent");
             payer.getTransactions().add(objectNode);
-
-//            ObjectNode receiverNode = objectNode.deepCopy();
-//            receiverNode.put("transferType", "received");
-//            receiverNode.put("amount", convertedAmount + " " + to);
-//            receiver.getTransactions().add(receiverNode);
-//            receiverAccount.getTransactions().add(receiverNode);
-
             payerAccount.getTransactions().add(objectNode);
-
+            if (mappers.hasUserToBusinessEntity(payer)) {
+                BusinessEntity businessEntity = mappers.getBusinessEntityForUser(payer);
+                if (businessEntity.getAccount().equals(payerAccount)) {
+                    businessEntity.getTransactions().add(objectNode);
+                }
+            }
             // Make payment
-            payerAccount.setBalance(payerAccount.getBalance() - input.getAmount() * (1 + commission));
+            payerAccount.setBalance(payerAccount.getBalance()
+                                    - input.getAmount() * (1 + commission));
             receiverAccount.setBalance(receiverAccount.getBalance() + convertedAmount);
 
             // Give cashback
             commerciant.giveCashback(payerAccount.getCurrency(), input.getAmount(), payer,
                                      payerAccount, exchangeGraph);
-//            double ronAmount = exchangeGraph.convertToRon(payerAccount.getCurrency(), input.getAmount());
-//            double thresholdCashback = payerAccount.getThresholdCashback(payer, ronAmount);
-//            payerAccount.setBalance(payerAccount.getBalance() + input.getAmount() * thresholdCashback);
-//            System.out.println("thresholdCashback in sendmoney : " + thresholdCashback);
         }
     }
 }

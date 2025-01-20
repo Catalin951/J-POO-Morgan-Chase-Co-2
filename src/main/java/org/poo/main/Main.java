@@ -3,17 +3,19 @@ package org.poo.main;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import org.poo.Constants;
 import org.poo.checker.Checker;
 import org.poo.checker.CheckerConstants;
 import org.poo.commerciant.Commerciant;
 import org.poo.exchange.Exchange;
-import org.poo.execution.Execute;
-import org.poo.execution.ExecutionCommand;
 import org.poo.execution.SingletonExecute;
+import org.poo.execution.ExecutionCommand;
 import org.poo.factories.CommerciantFactory;
-import org.poo.fileio.*;
+import org.poo.fileio.CommandInput;
+import org.poo.fileio.CommerciantInput;
+import org.poo.fileio.ExchangeInput;
+import org.poo.fileio.ObjectInput;
 import org.poo.userDetails.User;
+import org.poo.fileio.UserInput;
 import org.poo.utils.Utils;
 
 import java.io.File;
@@ -21,7 +23,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Objects;
@@ -84,51 +85,41 @@ public final class Main {
 
         ArrayNode output = objectMapper.createArrayNode();
         if (
-                filePath1.equals("test01_user_updates.json") ||
-                filePath1.equals("test02_upgrade_plan.json") ||
-                filePath1.equals("test03_commisions.json") ||
-                filePath1.equals("test04_commisions_advanced.json") ||
-                filePath1.equals("test05_savings_update.json") ||
-                filePath1.equals("test06_cashback.json") ||
-                filePath1.equals("test07_simple_split_payment.json") ||
-                filePath1.equals("test08_advanced_split_payment.json")
-        ) {
-        System.out.println(filePath1);
+            filePath1.equals("test01_user_updates.json")
+            || filePath1.equals("test02_upgrade_plan.json")
+            || filePath1.equals("test03_commisions.json")
+            || filePath1.equals("test04_commisions_advanced.json")
+            || filePath1.equals("test05_savings_update.json")
+            || filePath1.equals("test06_cashback.json")
+            || filePath1.equals("test07_simple_split_payment.json")
+            || filePath1.equals("test08_advanced_split_payment.json")
+            || filePath1.equals("test09_business_account_simple.json")) {
+            User[] users = new User[inputData.getUsers().length];
+            int userIndex = 0;
+            for (UserInput userInput : inputData.getUsers()) {
+                users[userIndex++] = new User(userInput);
+            }
+            Exchange[] exchanges = new Exchange[inputData.getExchangeRates().length];
+            int exchangeIndex = 0;
+            for (ExchangeInput exchangeInput : inputData.getExchangeRates()) {
+                exchanges[exchangeIndex++] = new Exchange(exchangeInput);
+            }
+            Commerciant[] commerciants = new Commerciant[inputData.getCommerciants().length];
+            int commerciantIndex = 0;
+            for (CommerciantInput commerciantInput : inputData.getCommerciants()) {
+                commerciants[commerciantIndex++] = CommerciantFactory
+                                                    .createCommerciant(commerciantInput);
+            }
 
-        String currentDate = LocalDate.now().toString();
-        String[] dateSegments = currentDate.split("-");
-        try {
-            Constants.currentYear = Integer.parseInt(dateSegments[0]);
-            Constants.currentMonth = Integer.parseInt(dateSegments[1]);
-            Constants.currentDay = Integer.parseInt(dateSegments[2]);
-        } catch (NumberFormatException e) {
-            throw new NumberFormatException("Invalid birthdate format");
-        }
-        User[] users = new User[inputData.getUsers().length];
-        int userIndex = 0;
-        for (UserInput userInput : inputData.getUsers()) {
-            users[userIndex++] = new User(userInput);
-        }
-
-        Exchange[] exchanges = new Exchange[inputData.getExchangeRates().length];
-        int exchangeIndex = 0;
-        for (ExchangeInput exchangeInput : inputData.getExchangeRates()) {
-            exchanges[exchangeIndex++] = new Exchange(exchangeInput);
-        }
-
-        Commerciant[] commerciants = new Commerciant[inputData.getCommerciants().length];
-        int commerciantIndex = 0;
-        for (CommerciantInput commerciantInput : inputData.getCommerciants()) {
-            commerciants[commerciantIndex++] = CommerciantFactory.createCommerciant(commerciantInput);
-        }
-
-        ExecutionCommand[] commands = new ExecutionCommand[inputData.getCommands().length];
-        int commandIndex = 0;
-        for (CommandInput commandInput : inputData.getCommands()) {
-            commands[commandIndex++] = new ExecutionCommand(commandInput);
-        }
-        SingletonExecute exec = SingletonExecute.getInstance(output, users, commerciants, exchanges, commands);
-        exec.execution();
+            ExecutionCommand[] commands = new ExecutionCommand[inputData.getCommands().length];
+            int commandIndex = 0;
+            for (CommandInput commandInput : inputData.getCommands()) {
+                commands[commandIndex++] = new ExecutionCommand(commandInput);
+            }
+            SingletonExecute exec = SingletonExecute.getInstance(output, users,
+                                                                commerciants, exchanges,
+                                                                commands);
+            exec.execution();
         }
         ObjectWriter objectWriter = objectMapper.writerWithDefaultPrettyPrinter();
         objectWriter.writeValue(new File(filePath2), output);

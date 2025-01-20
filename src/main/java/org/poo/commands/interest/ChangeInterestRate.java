@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.poo.commands.Command;
-import org.poo.execution.Execute;
 import org.poo.execution.ExecutionCommand;
+import org.poo.execution.SingletonExecute;
 import org.poo.mapper.Mappers;
 import org.poo.userDetails.account.Account;
 
@@ -24,14 +24,14 @@ public final class ChangeInterestRate implements Command {
         Account requestedAccount = mapper.getAccountForIban(input.getAccount());
 
         if (requestedAccount == null) {
-            output.add(Execute.makeGeneralError("changeInterestRate",
+            output.add(SingletonExecute.makeGeneralError("changeInterestRate",
                     "Account not found",
                     input.getTimestamp()));
             return;
         }
         String type = requestedAccount.getAccountType();
         if (type.equals("classic")) {
-            output.add(Execute.makeGeneralError("changeInterestRate",
+            output.add(SingletonExecute.makeGeneralError("changeInterestRate",
                     "This is not a savings account",
                     input.getTimestamp()));
             return;

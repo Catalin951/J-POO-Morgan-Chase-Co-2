@@ -16,7 +16,7 @@ public final class SpendingThreshold extends Commerciant {
         double couponCashback = this.getCouponCashbackAndRemove(payerAccount);
         double ronAmount = exchangeGraph.convertToRon(currencyType, amountPaid);
         double thresholdCashback = payerAccount.getThresholdCashback(payer, ronAmount);
-        payerAccount.setBalance(payerAccount.getBalance() + amountPaid * (thresholdCashback + couponCashback));
-        System.out.println("thresholdCashback, coupon cashback in spending threshold: " + thresholdCashback + couponCashback);
+        payerAccount.setBalance(payerAccount.getBalance()
+                                + amountPaid * (thresholdCashback + couponCashback));
     }
 }
